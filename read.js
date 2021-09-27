@@ -10,7 +10,7 @@ const Selector = (props) => {
   console.log(numChapters);
   const goToRead = function() {
     console.log(book + ' - ' + refChapter.current.value);
-    window.location.href = `./readChapter.html?book=${book}&chapter=${chapter}`;
+    window.location.href = `./readchapter.html?book=${book}&chapter=${chapter}`;
   };
   const onSelectBook = function() {
     setBook(refBook.current.value);
