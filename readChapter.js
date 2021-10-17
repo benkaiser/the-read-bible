@@ -5,70 +5,165 @@ const searchParams = new URLSearchParams(window.location.search);
 const bookSelected = searchParams.get('book');
 const chapterSelected = parseInt(searchParams.get('chapter'));
 const bookIndex = bookFiles.findIndex(book => book === bookSelected);
+const bookNiceName = books[bookIndex];
 
-function filterToChapter(fullBook, chapterNumber) {
-  let generatedChapter = [];
-  let inChapter = false;
-  for (let i = 0; i < fullBook.length; i++) {
-    if (inChapter === false && fullBook[i].chapterNumber === chapterNumber) {
-      inChapter = true;
-      if (fullBook[i - 1] && fullBook[i - 1].type === 'paragraph start') {
-        generatedChapter.push(fullBook[i - 1]);
-      }
-      generatedChapter.push(fullBook[i]);
-    } else if (inChapter && fullBook[i].chapterNumber !== chapterNumber + 1) {
-      generatedChapter.push(fullBook[i]);
-    } else if (fullBook[i].chapterNumber === chapterNumber + 1) {
-      inChapter = false;
-      generatedChapter.pop();
-      break;
-    }
-  }
-  return generatedChapter;
+function newVerseElement(verse, lastId) {
+  const span = document.createElement('span');
+  span.classList.add('verseContents');
+  span.id = lastId + 'C';
+  span.textContent = verse;
+  return span;
 }
 
-function renderContent(content) {
-  let finalString = [];
-  let verseCounter = 0;
-  content.forEach(contentPiece => {
-    if (contentPiece.type == 'paragraph start') {
-      finalString.push('<p>');
+function insertVerses(nodeWithTextChildren) {
+  let storedContents = '';
+  let lastId = '';
+  const newChildren = [];
+  for (let x = 0; x < nodeWithTextChildren.childNodes.length; x++) {
+    let currentNode = nodeWithTextChildren.childNodes[x];
+    if (currentNode.nodeType === 1 && currentNode.className === 'verse') {
+      if (storedContents.trim().length > 0) {
+        newChildren.push(newVerseElement(storedContents.trim(), lastId));
+      }
+      storedContents = '';
+      lastId = currentNode.id;
+      newChildren.push(currentNode);
+      continue;
     }
-    if (contentPiece.verseNumber > verseCounter) {
-      finalString.push(`<span class='verse'>${contentPiece.verseNumber}</span>`);
-      verseCounter = contentPiece.verseNumber;
+    if (currentNode.nodeType === 3 && currentNode.textContent.trim().length === 0) {
+      continue;
+    } else if (currentNode.nodeType === 3) {
+      storedContents += ' ' + currentNode.textContent.trim();
     }
-    let wjClass = '';
-    if (contentPiece.wj) {
-      wjClass = 'wj';
-    }
-    contentPiece.value && finalString.push(`<span class='${wjClass}'>${contentPiece.value}</span>`);
-    if (contentPiece.type == 'paragraph end') {
-      finalString.push('</p>');
-    }
+  }
+  if (storedContents.trim().length > 0) {
+    newChildren.push(newVerseElement(storedContents.trim(), lastId));
+  }
+  nodeWithTextChildren.innerHTML = '';
+  newChildren.forEach(child => {
+    nodeWithTextChildren.appendChild(child);
   });
-  return finalString.join('');
+  if (lastId) {
+    return parseInt(lastId.replace('V', ''));
+  } else {
+    return 1;
+  }
+}
+
+function processContent(contents) {
+  const element = htmlToElement(contents);
+  element.querySelector('.chapterlabel');
+  const chapterLabel = element.querySelector('.chapterlabel').innerText;
+  // replace only numbers with a book name
+  if (/^[0-9]*$/.test(chapterLabel.trim())) {
+    element.querySelector('.chapterlabel').innerText = bookNiceName + ' ' + chapterLabel;
+  }
+  // remove notemarks
+  const notemarks = element.getElementsByClassName("notemark");
+  while (notemarks[0]) {
+      notemarks[0].parentNode.removeChild(notemarks[0]);
+  }
+  // create verse text containers
+  const paragraphs = element.getElementsByClassName("p");
+  let highestId = 0;
+  for (let x = 0; x < paragraphs.length; x++) {
+    highestId = insertVerses(paragraphs[x]);
+  }
+
+  return {
+    contents: element.outerHTML,
+    verseCount: highestId
+  };
+}
+
+function htmlToElement(html) {
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild;
 }
 
 const Reader = (props) => {
   return html`
-  <div className='scripture' dangerouslySetInnerHTML=${ { __html: renderContent(props.content) }}>
+  <div className='scripture' dangerouslySetInnerHTML=${ { __html: props.content }}>
   </div>
   `;
 }
 
 const App = (props) => {
   const [content, setContent] = React.useState(undefined);
+  const [verseCount, setVerseCount] = React.useState(1);
+  const [verseIndex, setFocusedVerse] = React.useState(1);
+  const [isMobile, setIsMobile] = React.useState(false);
+
   React.useEffect(() => {
-    fetch(`./data/books/${bookSelected}.json`)
-    .then(response => response.json())
-    .then(responseJSON => {
-      setContent(filterToChapter(responseJSON, chapterSelected));
+    fetch(`./data/chapters/${bookSelected}${chapterSelected}.html`)
+    .then(response => response.text())
+    .then(responseHTML => {
+      const {
+        contents,
+        verseCount: actualVerseCount
+      } = processContent(responseHTML);
+      setContent(contents);
+      setVerseCount(actualVerseCount);
     });
   }, []);
+  const handleUserKeyPress = React.useCallback(event => {
+    const { key, keyCode, code } = event;
+    if(key === 'ArrowDown' || key === 'ArrowRight'){
+      setFocusedVerse(currentFocussedVerse => {
+        if (currentFocussedVerse < verseCount) {
+          return currentFocussedVerse + 1;
+        } else {
+          return currentFocussedVerse;
+        }
+      });
+    } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+      setFocusedVerse(currentFocussedVerse => {
+        if (currentFocussedVerse - 1 > 0) {
+          return currentFocussedVerse - 1;
+        } else {
+          return currentFocussedVerse;
+        }
+      });
+    }
+  }, [verseCount]);
+
+  React.useEffect(() => {
+    const verseContents = document.getElementById('V' + verseIndex + 'C');
+    if (verseContents) {
+      verseContents.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }
+  }, [verseIndex]);
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleUserKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleUserKeyPress);
+    };
+  }, [handleUserKeyPress]);
+
+  const onTouch = React.useCallback((event) => {
+    if (isMobile && event.target) {
+      const id = event.target.id;
+      try {
+        const id = parseInt(event.target.id.match(/\d+/)[0])
+        setFocusedVerse(id);
+      } catch {
+        /* no-op */
+      }
+    }
+  }, [isMobile]);
+
   return html`
   <div className='readChapterContainer mx-auto'>
-    ${ content ? html`<${Reader} content=${content} />` : 'Loading' }
+    ${ content ? html`<div className='scripture' onTouchStart=${() => setIsMobile(true)} onClick=${onTouch} dangerouslySetInnerHTML=${ { __html: content }}></div>
+    ` : 'Loading' }
+    <style dangerouslySetInnerHTML=${ { __html: `
+      #V${verseIndex}, #V${verseIndex}C {
+        color: black;
+      }
+    ` }}></style>
   </div>
   `;
 }

@@ -40,17 +40,30 @@
 /** ReadChapter **/
 
 .readChapterContainer {
-  max-width: 800px;
+  max-width: 1024px;
   margin-top: 40px;
   margin-bottom: 40px;
 }
 
-.scripture p {
+.scripture {
+  padding-top: 20vh;
+  padding-bottom: 20vh;
+  padding-left: 20px;
+  padding-right: 20px;
   font-family: 'Open Sans', sans-serif;
-  text-indent: 1em;
-  font-size: 4vh;
+  font-size: 28px;
   line-height: 2em;
   font-weight: medium;
+}
+
+.scripture .chapterlabel {
+  font-weight: bold;
+  font-size: 40px;
+}
+
+.scripture .p {
+  text-indent: 1em;
+  color: #777;
 }
 
 .scripture .wj {
@@ -59,4 +72,22 @@
 
 .scripture .verse {
   margin-right: 10px;
+}
+
+.scripture .verseContents {
+  margin-right: 10px;
+}
+
+.mt,.mt2,.mt3, .ms, .notemark {
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .scripture {
+    font-size: 22px;
+  }
+
+  .scripture .chapterlabel {
+    font-size: 30px;
+  }
 }
