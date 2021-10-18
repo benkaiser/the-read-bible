@@ -67,15 +67,15 @@
 }
 
 .scripture .wj {
-  color: rgb(216 46 46);
+  color: #b95d5d;
 }
 
-.scripture .verse {
-  margin-right: 10px;
+.scripture .verseFragment::after {
+  content: " ";
 }
 
-.scripture .verseContents {
-  margin-right: 10px;
+.scripture .wj::after {
+  content: " ";
 }
 
 .mt,.mt2,.mt3, .ms, .notemark {

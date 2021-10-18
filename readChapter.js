@@ -7,25 +7,34 @@ const chapterSelected = parseInt(searchParams.get('chapter'));
 const bookIndex = bookFiles.findIndex(book => book === bookSelected);
 const bookNiceName = books[bookIndex];
 
-function newVerseElement(verse, lastId) {
+function newVerseElement(contents, lastId) {
   const span = document.createElement('span');
   span.classList.add('verseContents');
   span.id = lastId + 'C';
-  span.textContent = verse;
+  contents.forEach(content => {
+    if (typeof content === 'string') {
+      const verseFragment = document.createElement('span');
+      verseFragment.classList.add('verseFragment');
+      verseFragment.textContent = content;
+      span.appendChild(verseFragment);
+    } else {
+      span.appendChild(content);
+    }
+  });
   return span;
 }
 
 function insertVerses(nodeWithTextChildren) {
-  let storedContents = '';
+  let storedContents = [];
   let lastId = '';
   const newChildren = [];
   for (let x = 0; x < nodeWithTextChildren.childNodes.length; x++) {
     let currentNode = nodeWithTextChildren.childNodes[x];
     if (currentNode.nodeType === 1 && currentNode.className === 'verse') {
-      if (storedContents.trim().length > 0) {
-        newChildren.push(newVerseElement(storedContents.trim(), lastId));
+      if (storedContents.length > 0) {
+        newChildren.push(newVerseElement(storedContents, lastId));
       }
-      storedContents = '';
+      storedContents = [];
       lastId = currentNode.id;
       newChildren.push(currentNode);
       continue;
@@ -33,11 +42,13 @@ function insertVerses(nodeWithTextChildren) {
     if (currentNode.nodeType === 3 && currentNode.textContent.trim().length === 0) {
       continue;
     } else if (currentNode.nodeType === 3) {
-      storedContents += ' ' + currentNode.textContent.trim();
+      storedContents.push(currentNode.textContent.trim());
+    } else {
+      storedContents.push(currentNode);
     }
   }
-  if (storedContents.trim().length > 0) {
-    newChildren.push(newVerseElement(storedContents.trim(), lastId));
+  if (storedContents.length > 0) {
+    newChildren.push(newVerseElement(storedContents, lastId));
   }
   nodeWithTextChildren.innerHTML = '';
   newChildren.forEach(child => {
@@ -137,8 +148,6 @@ const App = (props) => {
   }, [handleUserKeyPress]);
 
   const onTouch = React.useCallback((event) => {
-    console.log('Click');
-    console.log(event.target);
     if (isMobile && event.target) {
       const id = event.target.id;
       try {
@@ -157,6 +166,9 @@ const App = (props) => {
     <style dangerouslySetInnerHTML=${ { __html: `
       #V${verseIndex}, #V${verseIndex}C {
         color: black;
+      }
+      #V${verseIndex}C .wj {
+        color: #d82e2e;
       }
     ` }}></style>
   </div>
