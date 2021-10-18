@@ -83,13 +83,6 @@ function htmlToElement(html) {
   return template.content.firstChild;
 }
 
-const Reader = (props) => {
-  return html`
-  <div className='scripture' dangerouslySetInnerHTML=${ { __html: props.content }}>
-  </div>
-  `;
-}
-
 const App = (props) => {
   const [content, setContent] = React.useState(undefined);
   const [verseCount, setVerseCount] = React.useState(1);
@@ -144,6 +137,8 @@ const App = (props) => {
   }, [handleUserKeyPress]);
 
   const onTouch = React.useCallback((event) => {
+    console.log('Click');
+    console.log(event.target);
     if (isMobile && event.target) {
       const id = event.target.id;
       try {

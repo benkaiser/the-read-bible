@@ -46,8 +46,8 @@
 }
 
 .scripture {
-  padding-top: 20vh;
-  padding-bottom: 20vh;
+  padding-top: 40px;
+  padding-bottom: 40px;
   padding-left: 20px;
   padding-right: 20px;
   font-family: 'Open Sans', sans-serif;
@@ -90,4 +90,8 @@
   .scripture .chapterlabel {
     font-size: 30px;
   }
+}
+
+.read-body::-webkit-scrollbar {
+  display: none;
 }
