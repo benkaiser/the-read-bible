@@ -95,3 +95,11 @@
 .read-body::-webkit-scrollbar {
   display: none;
 }
+
+.user-image {
+  border-radius: 50%;
+}
+
+.youtube-video {
+  max-width: 100%;
+}

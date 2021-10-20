@@ -149,10 +149,13 @@ const App = (props) => {
 
   const onTouch = React.useCallback((event) => {
     if (isMobile && event.target) {
-      const id = event.target.id;
       try {
-        const id = parseInt(event.target.id.match(/\d+/)[0])
-        setFocusedVerse(id);
+        const verseContents = event.target.closest('.verseContents');
+        const verseNumber = event.target.closest('.verse');
+        if (verseContents || verseNumber) {
+          const id = parseInt((verseContents || verseNumber).id.match(/\d+/)[0])
+          setFocusedVerse(id);
+        }
       } catch {
         /* no-op */
       }
