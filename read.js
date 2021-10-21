@@ -69,6 +69,7 @@ const App = (props) => {
           <a className="nav-link" aria-current="page" href="./">Home</a>
           <a className="nav-link active" href="#">Read</a>
           <a className="nav-link" href="listen.html">Listen</a>
+          <a className="nav-link" href="listen.html#/submit">Submit</a>
         </nav>
       </div>
     </header>

@@ -62,7 +62,7 @@ const SubmitView = (props) => {
       fetch('./data/recordings.json?cachebust=' + Math.random())
       .then(response => response.json())
       .then((response) => {
-        if (response.findIndex(item => item.id === videoId) !== -1) {
+        if (response.findIndex(item => item.videoId === videoId) !== -1) {
           window.location.href = `listen.html#/book/${bookName}`;
         }
       });
