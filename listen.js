@@ -94,7 +94,7 @@ const SubmitView = (props) => {
       })}})
     }).then((response) => {
       if (response.status === 200 || response.status === 204) {
-        setStatus('Upload initiated. Will redirect when available (can take up to 1 minute)');
+        setStatus('Processing. Will redirect when available (can take up to 1 minute)');
         setLoading(true);
         waitForUpload(video, book);
       } else {
