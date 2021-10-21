@@ -32,6 +32,8 @@ const SubmitView = (props) => {
   const [gravatarHash, setGravatarHash] = React.useState('d41d8cd98f00b204e9800998ecf8427e');
   const [reader, setReader] = React.useState('John Smith');
   const [video, setVideo] = React.useState();
+  const [status, setStatus] = React.useState();
+  const [loading, setLoading] = React.useState(false);
   const refBook = React.useRef(null);
   const refChapter = React.useRef(null);
   const refEmail = React.useRef(null);
@@ -55,10 +57,12 @@ const SubmitView = (props) => {
   const onChangeVideo = React.useCallback(() => {
     setVideo(extractVideoId(refVideo.current.value));
   });
-  const waitForUpload = React.useCallback((bookName) => {
+  const waitForUpload = React.useCallback((videoId, bookName) => {
     setInterval(() => {
-      fetch('./data/recordings.json?cachebust=' + Math.random()).then((response) => {
-        if (response.status === 200) {
+      fetch('./data/recordings.json?cachebust=' + Math.random())
+      .then(response => response.json())
+      .then((response) => {
+        if (response.findIndex(item => item.id === videoId) !== -1) {
           window.location.href = `listen.html#/book/${bookName}`;
         }
       });
@@ -76,7 +80,7 @@ const SubmitView = (props) => {
       setStatus('Please provide a video');
       return;
     }
-    setStatus('Creating paste');
+    setStatus('Adding recording');
     setLoading(true);
     fetch("https://publicactiontrigger.azurewebsites.net/api/dispatches/benkaiser/the-read-bible", {
       method: 'POST',
@@ -133,7 +137,7 @@ const SubmitView = (props) => {
           </div>
           <div className="mb-3">
             <label htmlFor="readerEmail">Author Gravatar Email</label>
-            <div class="text-muted mb-1">Only used for gravatar lookup, email is not stored</div>
+            <div className="text-muted mb-1">Only used for gravatar lookup, email is not stored</div>
             <input type="text" ref=${refEmail} className="form-control" id="readerEmail" placeholder="myemail@someplace.com" onKeyUp=${onChangeEmail} />
           </div>
         </div>
@@ -148,7 +152,13 @@ const SubmitView = (props) => {
             <iframe className='youtube-video' width="560" height="315" src="https://www.youtube.com/embed/${video}" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen>
             </iframe>
           ` : '' }
-          <button className='btn btn-success btn-lg btn-block mt-2'>Submit</button>
+          <button className='btn btn-success btn-lg btn-block mt-2 mb-3' onClick=${onSubmit}>Submit</button>
+          ${ status ? html`
+            <div className="alert alert-primary" role="alert">
+              ${status}
+            </div>
+          ` : ''}
+          ${ loading ? html`<div key="spinner" className="lds-facebook"><div></div><div></div><div></div></div>` : ''}
         </div>
       </div>
     </div>

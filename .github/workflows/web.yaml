@@ -23,7 +23,7 @@ jobs:
     - env:
         GITHUB_CONTEXT: ${{ github.event.client_payload.data }}
       run: echo "VIDEOID=$(echo $GITHUB_CONTEXT | jq '.videoId' -r)" >> $GITHUB_ENV
-    - name: Writing Snippet to File
+    - name: Writing Recording to File
       run: node saveRecording.js
     - name: Committing changes with rebase
       id: push
