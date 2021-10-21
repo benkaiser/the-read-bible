@@ -29,7 +29,7 @@ const Selector = (props) => {
 
   return html`<div className='lead'>
     <div className='row'>
-      <div className='col-md-5'>
+      <div className='col-md-5 mb-3'>
         <span>Book:</span>
         <select defaultValue='john' ref=${refBook} value=${book} onChange=${onSelectBook} className='form-control'>
           ${books.map((book, index) => {
@@ -37,7 +37,7 @@ const Selector = (props) => {
           })}
         </select>
       </div>
-      <div className='col-md-5'>
+      <div className='col-md-5 mb-3'>
         <span>Chapter:</span>
         <select ref=${refChapter} onChange=${onSelectChapter} defaultValue='3' value=${chapter} className='form-control'>
           ${Array.from(Array(numChapters).keys()).map((_, index) => {
@@ -45,14 +45,14 @@ const Selector = (props) => {
           })}
         </select>
       </div>
-      <div className='col-md-2 d-grid'>
+      <div className='col-md-2 mb-3 d-grid'>
         <button className='btn btn-secondary btn-block align-self-end' onClick=${pickRandom}>
           <i className="bi bi-dice-3"></i>
         </button>
       </div>
     </div>
     <div className='d-grid'>
-      <button className='btn btn-primary btn-lg btn-block mt-2' onClick=${goToRead}>Read</button>
+      <button className='btn btn-primary btn-lg btn-block' onClick=${goToRead}>Read</button>
     </div>
   </div>
   `;
