@@ -64,6 +64,7 @@ const SubmitView = (props) => {
       .then((response) => {
         if (response.findIndex(item => item.videoId === videoId) !== -1) {
           window.location.href = `listen.html#/book/${bookName}`;
+          window.location.reload();
         }
       });
     }, 5000);
