@@ -55,6 +55,53 @@ const SubmitView = (props) => {
   const onChangeVideo = React.useCallback(() => {
     setVideo(extractVideoId(refVideo.current.value));
   });
+  const waitForUpload = React.useCallback((bookName) => {
+    setInterval(() => {
+      fetch('./data/recordings.json?cachebust=' + Math.random()).then((response) => {
+        if (response.status === 200) {
+          window.location.href = `listen.html#/book/${bookName}`;
+        }
+      });
+    }, 5000);
+  });
+  const onSubmit = React.useCallback(() => {
+    const book = refBook.current.value;
+    const chapter = refChapter.current.value;
+    const speaker = refName.current.value;
+    if (!speaker) {
+      setStatus('Please add the name for the speaker of this video');
+      return;
+    }
+    if (!video) {
+      setStatus('Please provide a video');
+      return;
+    }
+    setStatus('Creating paste');
+    setLoading(true);
+    fetch("https://publicactiontrigger.azurewebsites.net/api/dispatches/benkaiser/the-read-bible", {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify({ event_type: 'Create Paste', client_payload: { data: JSON.stringify({
+        book: escape(book),
+        chapter: escape(chapter),
+        speaker: escape(speaker),
+        gravatarHash: gravatarHash,
+        videoId: escape(video)
+      })}})
+    }).then((response) => {
+      if (response.status === 200 || response.status === 204) {
+        setStatus('Upload initiated. Will redirect when available (can take up to 1 minute)');
+        setLoading(true);
+        waitForUpload(video, book);
+      } else {
+        setStatus('Submit failed');
+        setLoading(false);
+      }
+    }).catch(() => {
+      setStatus('Submit failed');
+      setLoading(false);
+    });
+  });
   return html`
     <div>
       <h1 className='mb-4'>Submit Reading</h1>
@@ -183,7 +230,7 @@ const App = (props) => {
   const [data, setData] = React.useState();
 
   React.useEffect(() => {
-    fetch('data/recordings.json')
+    fetch('data/recordings.json?cachebust=' + Math.random())
     .then(response => response.json())
     .then(responseJson => {
       setData(responseJson);
