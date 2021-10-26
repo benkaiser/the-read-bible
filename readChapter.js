@@ -87,6 +87,10 @@ function processContent(contents) {
   };
 }
 
+function addFooter(html) {
+  return html + "<p class='copyright'>World English Bible (WEBBE) - Public Domain</p>";
+}
+
 function htmlToElement(html) {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
@@ -108,7 +112,7 @@ const App = (props) => {
         contents,
         verseCount: actualVerseCount
       } = processContent(responseHTML);
-      setContent(contents);
+      setContent(addFooter(contents));
       setVerseCount(actualVerseCount);
     });
   }, []);

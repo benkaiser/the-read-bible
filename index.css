@@ -82,6 +82,12 @@
   display: none;
 }
 
+.copyright {
+  color: #777;
+  font-size: 20px;
+  text-align: center;
+}
+
 @media only screen and (max-width: 600px) {
   .scripture {
     font-size: 22px;
