@@ -145,14 +145,9 @@ const SubmitView = (props) => {
         <div className='col-lg-6 col-md-12'>
           <h2>Preview</h2>
           <h3>${books[bookFiles.indexOf(book)]} - Chapter ${chapter}</h3>
-          <p>
-            ${ gravatarHash ? html`<img className='user-image' src='https://s.gravatar.com/avatar/${gravatarHash}?s=50' />` : '' }
-            <span className='ms-2'>Spoken by ${reader}</span>
-          </p>
-          ${ video ? html`
-            <iframe className='youtube-video' width="560" height="315" src="https://www.youtube.com/embed/${video}" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen>
-            </iframe>
-          ` : '' }
+          <div className='my-2'>
+            <${RecordingCard} gravatarHash=${gravatarHash} videoId=${video} speaker=${reader} />
+          </div>
           <button className='btn btn-success btn-lg btn-block mt-2 mb-3' onClick=${onSubmit}>Submit</button>
           ${ status ? html`
             <div className="alert alert-primary" role="alert">
@@ -189,26 +184,45 @@ const Book = (props) => {
   `;
 }
 
+const RecordingCard = (props) => {
+  const { gravatarHash, videoId, speaker } = props;
+  return html`
+    <div className="card">
+      ${ videoId ? html`<iframe className='card-img-top' width="560" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>` : undefined }
+      <div className="card-body">
+        <p className="card-text">
+          <img className='user-image' src='https://s.gravatar.com/avatar/${gravatarHash}?s=50' /> Spoken by ${speaker}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
 const BookView = (props) => {
   const params = useParams();
   const bookIndex = bookFiles.findIndex(item => item === params.bookname);
   const recordings = recordingForBook(params.bookname, props.data);
+  let lastChapter = 0;
   return html`
     <div>
       <div>
       <${Link} className="btn btn-primary float-end" to="/">Back to All Books</${Link}>
       <h1>${books[bookIndex]}</h1>
       </div>
-      ${ recordings.map(recording => {
-        return html`
-        <div key=${recording.videoId}>
-          <h2>Chapter ${recording.chapter}</h2>
-          <p><img className='user-image' src='https://s.gravatar.com/avatar/${recording.gravatarHash}?s=50' /> Spoken by ${recording.speaker}</p>
-          <iframe className='youtube-video' width="560" height="315" src="https://www.youtube.com/embed/${recording.videoId}" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen>
-          </iframe>
-        </div>
-        `;
-      })}
+      <div className='row'>
+        ${ recordings.map(recording => {
+          const isNewChapter = lastChapter !== recording.chapter;
+          lastChapter = recording.chapter;
+          return html`
+          <${React.Fragment} key=${recording.videoId}>
+            ${ isNewChapter ? html`<h2>Chapter ${recording.chapter}</h2>` : undefined }
+            <div className="col-lg-6 col-xl-4 mb-4">
+              <${RecordingCard} gravatarHash=${recording.gravatarHash} videoId=${recording.videoId} speaker=${recording.speaker} />
+            </div>
+          </${React.Fragment}>
+          `;
+        })}
+      </div>
     </div>
   `;
 }
