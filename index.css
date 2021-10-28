@@ -70,6 +70,10 @@
   color: #b95d5d;
 }
 
+.scripture .verse {
+  user-select: none;
+}
+
 .scripture .verseFragment::after {
   content: " ";
 }
