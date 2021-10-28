@@ -36,7 +36,7 @@ function insertVerses(nodeWithTextChildren) {
       }
       storedContents = [];
       lastId = currentNode.id;
-      newChildren.push(currentNode);
+      newChildren.push(currentNode.cloneNode(true));
       continue;
     }
     if (currentNode.nodeType === 3 && currentNode.textContent.trim().length === 0) {
@@ -44,7 +44,7 @@ function insertVerses(nodeWithTextChildren) {
     } else if (currentNode.nodeType === 3) {
       storedContents.push(currentNode.textContent.trim());
     } else {
-      storedContents.push(currentNode);
+      storedContents.push(currentNode.cloneNode(true));
     }
   }
   if (storedContents.length > 0) {
