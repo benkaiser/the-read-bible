@@ -1,0 +1,22 @@
+{
+  "short_name": "The Read Bible",
+  "name": "The Read Bible",
+  "icons": [
+    {
+      "src": "/resources/icon192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/resources/icon512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFF",
+  "display": "fullscreen",
+  "scope": "/",
+  "theme_color": "#FFF",
+  "description": "Read the Bible in Full Screen"
+}
