@@ -9,8 +9,10 @@ const Selector = (props) => {
   let numChapters = chapters[book];
   console.log(numChapters);
   const goToRead = function() {
-    console.log(book + ' - ' + refChapter.current.value);
-    window.location.href = `./readchapter.html?book=${book}&chapter=${chapter}`;
+    window.location.href = `./readchapter?book=${book}&chapter=${chapter}`;
+  };
+  const goToInsturctions = function() {
+    window.location.href = `./instructions?book=${book}&chapter=${chapter}`;
   };
   const onSelectBook = function() {
     setBook(refBook.current.value);
@@ -54,6 +56,9 @@ const Selector = (props) => {
     <div className='d-grid'>
       <button className='btn btn-primary btn-lg btn-block' onClick=${goToRead}>Read</button>
     </div>
+    <div className='d-grid mt-2'>
+      <button className='btn btn-secondary btn-block' onClick=${goToInsturctions}>Recording Instructions</button>
+    </div>
   </div>
   `;
 }
@@ -68,8 +73,8 @@ const App = (props) => {
         <nav className="nav nav-masthead justify-content-center float-md-end">
           <a className="nav-link" aria-current="page" href="./">Home</a>
           <a className="nav-link active" href="#">Read</a>
-          <a className="nav-link" href="listen.html">Listen</a>
-          <a className="nav-link" href="listen.html#/submit">Submit</a>
+          <a className="nav-link" href="listen">Listen</a>
+          <a className="nav-link" href="listen#/submit">Submit</a>
         </nav>
       </div>
     </header>

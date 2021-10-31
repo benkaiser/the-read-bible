@@ -10,6 +10,9 @@
   max-width: 42em;
 }
 
+.instructions-container {
+  max-width: 60em;
+}
 
 /*
  * Header
