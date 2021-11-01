@@ -64,10 +64,14 @@
   font-size: 40px;
 }
 
-.scripture .p {
-  text-indent: 1em;
+.scripture .p, .scripture .q, .scripture .q2 {
   color: #777;
 }
+
+.scripture .p, .scripture .q {
+  text-indent: 1em;
+}
+
 
 .scripture .wj {
   color: #b95d5d;

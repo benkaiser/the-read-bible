@@ -156,7 +156,7 @@ const App = (props) => {
         <h3 className="float-md-start mb-0">The Read Bible</h3>
         <nav className="nav nav-masthead justify-content-center float-md-end">
           <a className="nav-link" href="./">Home</a>
-          <a className="nav-link" href="#">Read</a>
+          <a className="nav-link" href="read">Read</a>
           <a className="nav-link" href="listen">Listen</a>
           <a className="nav-link" href="listen#/submit">Submit</a>
         </nav>

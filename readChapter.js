@@ -24,10 +24,19 @@ function newVerseElement(contents, lastId) {
   return span;
 }
 
-function insertVerses(nodeWithTextChildren) {
+function preprocessQuotes(nodeWithTextChildren) {
+  for (let x = 0; x < nodeWithTextChildren.childNodes.length; x++) {
+    let currentNode = nodeWithTextChildren.childNodes[x];
+    if (currentNode.className && (currentNode.className === 'q' || currentNode.className === 'q2')) {
+      currentNode.nodeT
+    }
+  }
+}
+
+function insertVerses(nodeWithTextChildren, lastIdAsNumber) {
   let storedContents = [];
-  let lastId = '';
   const newChildren = [];
+  let lastId = 'V' + lastIdAsNumber;
   for (let x = 0; x < nodeWithTextChildren.childNodes.length; x++) {
     let currentNode = nodeWithTextChildren.childNodes[x];
     if (currentNode.nodeType === 1 && currentNode.className === 'verse') {
@@ -75,10 +84,10 @@ function processContent(contents) {
       notemarks[0].parentNode.removeChild(notemarks[0]);
   }
   // create verse text containers
-  const paragraphs = element.getElementsByClassName("p");
-  let highestId = 0;
+  const paragraphs = element.querySelectorAll("p, .q, .q2");
+  let highestId = 1;
   for (let x = 0; x < paragraphs.length; x++) {
-    highestId = insertVerses(paragraphs[x]);
+    highestId = insertVerses(paragraphs[x], highestId);
   }
 
   return {
