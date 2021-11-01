@@ -115,16 +115,16 @@ const Information = () => {
       Once you have an app set up to record, navigate back to <a href='read'>the read page</a>, select a chapter and click "Read".
     </p>
     <p>
-      Once you have the chapter visible, enter full screen mode in your web browser and begin the recording.
+      Once you have the chapter visible, enter full-screen mode in your web browser and begin the recording.
       From here you can <b>use the arrow keys on desktop, or touch on mobile to move the focus between verses</b>.
-      The verses will scroll automatically as you tap/arrow between them. Read through the whole chapter and then stop the recording.
+      The verses will scroll as you tap/arrow between them. Read through the whole chapter and then stop the recording.
     </p>
     <p>
-      You can trim the recording locally on your device to just before you start reading and just after you finish. If you don't have a way to do this, you can proceed to the next step and use Youtube's video trimming tool.
+      On your device you can trim the recording to before you start reading and after you finish. If you don't have a way to do this, you can proceed to the next step and use Youtube's video trimming tool.
     </p>
     <h2>Uploading the Recording</h2>
     <p>
-      The process is straightforward for uploading the video to Youtube, visit <a href="https://youtube.com/upload" target="_blank">youtube.com/upload</a>. From here you can select your recording file and fill in the details of the video.
+      The process is straightforward for uploading the video to Youtube. Go to <a href="https://youtube.com/upload" target="_blank">youtube.com/upload</a>. From here you can select your recording file and fill in the details of the video.
       <ul>
         <li>For the title, use the following format "${"<"}Book Name${">"} Chapter ${"<"}X${">"} - WEBBE - The Read Bible", e.g. "John Chapter 3 - WEBBE - The Read Bible"</li>
         <li>For the description, you can use something like the following, feel free to copy in the full chapter contents too:
@@ -141,7 +141,7 @@ https://thereadbible.com/listen
       Visit the <a href="listen#/submit" target="_blank">submit page</a>. From there you can select which Chapter you are submitting a reading for, link to the youtube video of the recording, and enter your email to fetch your gravatar. If you don't have a gravatar set up, you can <a href="https://gravatar.com/" target="_blank">create one</a>.
     </p>
     <p>
-      All done! Once you submit it'll take a minute to process, then you'll be redirected to the book page which contains your chapter reading.
+      All done! Once you submit it'll take a minute to process, then you'll redirect to the book page which contains your chapter reading.
     </p>
   </div>
   `;
