@@ -1,47 +1,4 @@
 import { React, ReactDOM, html } from "./deps.js";
-import { books, bookFiles, chapters } from "./data/books.js";
-
-// const Selector = (props) => {
-//   const [book, setBook] = React.useState('john');
-//   const [chapter, setChapter] = React.useState(3);
-//   const refBook = React.useRef(null);
-//   const refChapter = React.useRef(null);
-//   let numChapters = chapters[book];
-//   const onSelectBook = function() {
-//     setBook(refBook.current.value);
-//     setChapter(1);
-//   }
-//   const onSelectChapter = function() {
-//     setChapter(refChapter.current.value);
-//   }
-
-//   return html`<div className='lead'>
-//     <div className='row'>
-//       <div className='col-md-5 mb-3'>
-//         <span>Book:</span>
-//         <select defaultValue='john' ref=${refBook} value=${book} onChange=${onSelectBook} className='form-control'>
-//           ${books.map((book, index) => {
-//             return html`<option value="${bookFiles[index]}">${book}</option>`;
-//           })}
-//         </select>
-//       </div>
-//       <div className='col-md-5 mb-3'>
-//         <span>Chapter:</span>
-//         <select ref=${refChapter} onChange=${onSelectChapter} defaultValue='3' value=${chapter} className='form-control'>
-//           ${Array.from(Array(numChapters).keys()).map((_, index) => {
-//             return html`<option value="${index + 1}">${index + 1}</option>`;
-//           })}
-//         </select>
-//       </div>
-//       <div className='col-md-2 mb-3 d-grid'>
-//         <button className='btn btn-secondary btn-block align-self-end' onClick=${pickRandom}>
-//           <i className="bi bi-dice-3"></i>
-//         </button>
-//       </div>
-//     </div>
-//   </div>
-//   `;
-// }
 
 const DesktopInstructions = () => {
   return html`
@@ -109,40 +66,41 @@ const Information = () => {
     ${ platform === 'desktop' && html`<${DesktopInstructions} />` }
     ${ platform === 'ios' && html`<${iOSInstructions} />` }
     ${ platform === 'android' && html`<${AndroidInstructions} />` }
-    ${ platform === undefined && html`<p className='text-muted'>Select a platform to show instructions</p>` }
-    <h2>Creating the Recording</h2>
-    <p>
-      Once you have an app set up to record, navigate back to <a href='read'>the read page</a>, select a chapter and click "Read".
-    </p>
-    <p>
-      Once you have the chapter visible, enter full-screen mode in your web browser and begin the recording.
-      From here you can <b>use the arrow keys on desktop, or touch on mobile to move the focus between verses</b>.
-      The verses will scroll as you tap/arrow between them. Read through the whole chapter and then stop the recording.
-    </p>
-    <p>
-      On your device you can trim the recording to before you start reading and after you finish. If you don't have a way to do this, you can proceed to the next step and use Youtube's video trimming tool.
-    </p>
-    <h2>Uploading the Recording</h2>
-    <p>
-      The process is straightforward for uploading the video to Youtube. Go to <a href="https://youtube.com/upload" target="_blank">youtube.com/upload</a>. From here you can select your recording file and fill in the details of the video.
-      <ul>
-        <li>For the title, use the following format "${"<"}Book Name${">"} Chapter ${"<"}X${">"} - WEBBE - The Read Bible", e.g. "John Chapter 3 - WEBBE - The Read Bible"</li>
-        <li>For the description, you can use something like the following, feel free to copy in the full chapter contents too:
-          <textarea className="w-100" style=${{ height: "100px"}}>
-            Created for The Read Bible - The crowd-sourced audio bible
+    ${ platform !== undefined && html`<${React.Fragment}>
+      <h2>Creating the Recording</h2>
+      <p>
+        Once you have an app set up to record, navigate back to <a href='read'>the read page</a>, select a chapter and click "Read".
+      </p>
+      <p>
+        Once you have the chapter visible, enter full-screen mode in your web browser and begin the recording.
+        From here you can <b>use the arrow keys on desktop, or touch on mobile to move the focus between verses</b>.
+        The verses will scroll as you tap/arrow between them. Read through the whole chapter and then stop the recording.
+      </p>
+      <p>
+        On your device you can trim the recording to before you start reading and after you finish. If you don't have a way to do this, you can proceed to the next step and use Youtube's video trimming tool.
+      </p>
+      <h2>Uploading the Recording</h2>
+      <p>
+        The process is straightforward for uploading the video to Youtube. Go to <a href="https://youtube.com/upload" target="_blank">youtube.com/upload</a>. From here you can select your recording file and fill in the details of the video.
+        <ul>
+          <li>For the title, use the following format "${"<"}Book Name${">"} Chapter ${"<"}X${">"} - WEBBE - The Read Bible", e.g. "John Chapter 3 - WEBBE - The Read Bible"</li>
+          <li>For the description, you can use something like the following, feel free to copy in the full chapter contents too:
+            <textarea className="w-100" style=${{ height: "100px"}}>
+              Created for The Read Bible - The crowd-sourced audio bible
 
-https://thereadbible.com/listen
-          </textarea>
-        </li>
-      </ul>
-    </p>
-    <h2>Submitting the Recording</h2>
-    <p>
-      Visit the <a href="listen#/submit" target="_blank">submit page</a>. From there you can select which Chapter you are submitting a reading for, link to the youtube video of the recording, and enter your email to fetch your gravatar. If you don't have a gravatar set up, you can <a href="https://gravatar.com/" target="_blank">create one</a>.
-    </p>
-    <p>
-      All done! Once you submit it'll take a minute to process, then you'll redirect to the book page which contains your chapter reading.
-    </p>
+  https://thereadbible.com/listen
+            </textarea>
+          </li>
+        </ul>
+      </p>
+      <h2>Submitting the Recording</h2>
+      <p>
+        Visit the <a href="listen#/submit" target="_blank">submit page</a>. From there you can select which Chapter you are submitting a reading for, link to the youtube video of the recording, and enter your email to fetch your gravatar. If you don't have a gravatar set up, you can <a href="https://gravatar.com/" target="_blank">create one</a>.
+      </p>
+      <p>
+        All done! Once you submit it'll take a minute to process, then you'll redirect to the book page which contains your chapter reading.
+      </p>
+    </${React.Fragment}>` }
   </div>
   `;
 }
