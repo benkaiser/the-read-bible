@@ -1,56 +1,41 @@
-<!doctype html>
-<html lang="en" class="h-100">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <title>The Read Bible</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link href="index.css" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-  </head>
-  <body class="d-flex h-100">
-  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header class="mb-auto">
-      <div>
-        <h3 class="float-md-start mb-0">The Read Bible</h3>
-        <nav class="nav nav-masthead justify-content-center float-md-end">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-          <a class="nav-link" href="read">Read</a>
-          <a class="nav-link" href="listen">Listen</a>
-          <a class="nav-link" href="listen#/submit">Submit</a>
-        </nav>
-      </div>
-    </header>
+---
+layout: default
+title: Home
+---
 
-    <main class="px-3">
-      <h1>Follow Along with Others Reading the Holy Bible</h1>
-      <p class="lead clearfix">So then faith comes by hearing, and hearing by the word of God.<br/>
-        <small class="float-end">Romans 10:17</small>
-      </p>
-      <div class='row'>
-        <div class='col-xs-12 col-sm-6'>
-          <p class="lead">
-            <a href="listen" class="btn btn-lg btn-primary fw-bold">Listen to Others</a>
-          </p>
-        </div>
-        <div class='col-xs-12 col-sm-6 d-flex justify-content-start'>
-          <p class="lead">
-            <a href="read" class="btn btn-lg btn-secondary fw-bold">Record Your Reading</a>
-          </p>
-        </div>
-      </div>
-    </main>
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="mb-auto">
+    <div>
+      <h3 class="float-md-start mb-0">The Read Bible</h3>
+      <nav class="nav nav-masthead justify-content-center float-md-end">
+        <a class="nav-link active" aria-current="page" href="#">Home</a>
+        <a class="nav-link" href="read">Read</a>
+        <a class="nav-link" href="listen">Listen</a>
+        <a class="nav-link" href="listen#/submit">Submit</a>
+      </nav>
+    </div>
+  </header>
 
-    <footer class="mt-auto">
-      <p>Created with ❤️ by <a href="https://benkaiser.dev/about">Benjamin Kaiser</a>.</p>
-    </footer>
-  </div>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
-  </script>
-  </body>
-</html>
+  <main class="px-3">
+    <h1>Follow Along with Others Reading the Holy Bible</h1>
+    <p class="lead clearfix">So then faith comes by hearing, and hearing by the word of God.<br/>
+      <small class="float-end">Romans 10:17</small>
+    </p>
+    <div class='row'>
+      <div class='col-xs-12 col-sm-6'>
+        <p class="lead">
+          <a href="listen" class="btn btn-lg btn-primary fw-bold">Listen to Others</a>
+        </p>
+      </div>
+      <div class='col-xs-12 col-sm-6 d-flex justify-content-start'>
+        <p class="lead">
+          <a href="read" class="btn btn-lg btn-secondary fw-bold">Record Your Reading</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-auto">
+    <p>Created with ❤️ by <a href="https://benkaiser.dev/about">Benjamin Kaiser</a>.</p>
+  </footer>
+</div>
