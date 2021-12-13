@@ -84,7 +84,7 @@ function processContent(contents) {
       notemarks[0].parentNode.removeChild(notemarks[0]);
   }
   // create verse text containers
-  const paragraphs = element.querySelectorAll(".p, .q, .q2");
+  const paragraphs = element.querySelectorAll(".p, .q, .q2, .m, .pi, .pi2, .pi3, .pmr, .pr, .pmo, .pmc, .psi, .pc, .nb");
   let highestId = 1;
   for (let x = 0; x < paragraphs.length; x++) {
     highestId = insertVerses(paragraphs[x], highestId);
