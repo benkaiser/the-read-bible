@@ -7,9 +7,8 @@
 //   client.close();
 // });
 import { PrismaClient } from '@prisma/client/edge';
-const prisma = new PrismaClient();
 
-export async function onRequestGet(context): Promise<Request> {
+export async function onRequestGet(context): Promise<Response> {
   // Contents of context object
   const {
     request, // same as existing Worker API
@@ -20,7 +19,14 @@ export async function onRequestGet(context): Promise<Request> {
     next, // used for middleware or to fetch assets
     data, // arbitrary space for passing data between middlewares
   } = context;
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: env.DATABASE_URL
+      }
+    }
+  });
   return prisma.recordings.findMany().then((recordings) => {
-    return new Response(JSON.stringify(recordings))
-  })
+    return new Response(JSON.stringify(recordings));
+  });
 }
