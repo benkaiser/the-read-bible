@@ -6,5 +6,8 @@
   },
   "devDependencies": {
     "prisma": "^4.5.0"
+  },
+  "scripts": {
+    "postinstall": "prisma generate --data-proxy"
   }
 }
