@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@cloudflare/workers-types": "^3.18.0",
+    "@prisma/client": "^4.5.0"
+  },
+  "devDependencies": {
+    "prisma": "^4.5.0"
+  }
+}

@@ -2,3 +2,4 @@
 .DS_STORE
 _site
 .jekyll-cache/
+.dev.vars
