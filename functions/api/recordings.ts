@@ -9,24 +9,28 @@
 import { PrismaClient } from '@prisma/client/edge';
 
 export async function onRequestGet(context): Promise<Response> {
-  // Contents of context object
-  const {
-    request, // same as existing Worker API
-    env, // same as existing Worker API
-    params, // if filename includes [id] or [[path]]
-    waitUntil, // same as ctx.waitUntil in existing Worker API
-    passThroughOnException, // same as ctx.passThroughOnException in existing Worker API
-    next, // used for middleware or to fetch assets
-    data, // arbitrary space for passing data between middlewares
-  } = context;
-  const prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url: env.DATABASE_URL
+  try {
+    // Contents of context object
+    const {
+      request, // same as existing Worker API
+      env, // same as existing Worker API
+      params, // if filename includes [id] or [[path]]
+      waitUntil, // same as ctx.waitUntil in existing Worker API
+      passThroughOnException, // same as ctx.passThroughOnException in existing Worker API
+      next, // used for middleware or to fetch assets
+      data, // arbitrary space for passing data between middlewares
+    } = context;
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: env.DATABASE_URL
+        }
       }
-    }
-  });
-  return prisma.recordings.findMany().then((recordings) => {
-    return new Response(JSON.stringify(recordings));
-  });
+    });
+    return prisma.recordings.findMany().then((recordings) => {
+      return new Response(JSON.stringify(recordings));
+    });
+  } catch (exception) {
+    return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
+  }
 }
