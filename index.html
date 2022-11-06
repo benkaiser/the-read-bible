@@ -9,34 +9,45 @@ title: Home
       <h3 class="float-md-start mb-0">The Read Bible</h3>
       <nav class="nav nav-masthead justify-content-center float-md-end">
         <a class="nav-link active" aria-current="page" href="#">Home</a>
-        <a class="nav-link" href="read">Read</a>
-        <a class="nav-link" href="listen">Listen</a>
-        <a class="nav-link" href="listen#/submit">Submit</a>
       </nav>
     </div>
   </header>
 
   <main class="px-3">
     <img src="https://images.unsplash.com/photo-1553729784-e91953dec042?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=606&amp;h=300&amp;q=80" style="margin-bottom: 20px;border-radius: 5px;max-width: 100%;">
-    <h1>Follow Along with Others Reading the Holy Bible</h1>
-    <p class="lead clearfix">So then faith comes by hearing, and hearing by the word of God.<br/>
-      <small class="float-end">Romans 10:17</small>
-    </p>
-    <div class='row'>
-      <div class='col-xs-12 col-sm-6'>
-        <p class="lead">
-          <a href="listen" class="btn btn-lg btn-primary fw-bold">Listen to Others</a>
-        </p>
-      </div>
-      <div class='col-xs-12 col-sm-6 d-flex justify-content-start'>
-        <p class="lead">
-          <a href="read" class="btn btn-lg btn-secondary fw-bold">Record Your Reading</a>
-        </p>
+    <h1>The Crowd-Sourced Audio Bible</h1>
+    <p class="lead">To get started, select which chapter you would like to read</p>
+    <div id="reactRoot">
+      <div class='lead'>
+        <div class='row'>
+          <div class='col-md-5 mb-3'>
+            <span>Book:</span>
+            <select class='form-control'>
+            </select>
+          </div>
+          <div class='col-md-5 mb-3'>
+            <span>Chapter:</span>
+            <select class='form-control'>
+            </select>
+          </div>
+          <div class='col-md-2 mb-3 d-grid'>
+            <button class='btn btn-secondary btn-block align-self-end'>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dice-3" viewBox="0 0 16 16">
+                <path d="M13 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10zM3 0a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3H3z"/>
+                <path d="M5.5 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm8 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-4-4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class='d-grid'>
+          <button class='btn btn-primary btn-lg btn-block'>Read</button>
+        </div>
       </div>
     </div>
   </main>
 
-  <footer class="mt-auto">
+  <footer class="mt-auto pt-4">
     <p>Created with ❤️ by <a href="https://benkaiser.dev/about">Benjamin Kaiser</a>.</p>
   </footer>
 </div>
+<script type="module" src="index.js"></script>

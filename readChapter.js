@@ -1,5 +1,5 @@
 import { React, ReactDOM, html } from "./deps.js";
-import { books, bookFiles, chapters } from "./data/books.js";
+import { books, bookFiles } from "./data/books.js";
 
 const searchParams = new URLSearchParams(window.location.search);
 const bookSelected = searchParams.get('book');
@@ -22,15 +22,6 @@ function newVerseElement(contents, lastId) {
     }
   });
   return span;
-}
-
-function preprocessQuotes(nodeWithTextChildren) {
-  for (let x = 0; x < nodeWithTextChildren.childNodes.length; x++) {
-    let currentNode = nodeWithTextChildren.childNodes[x];
-    if (currentNode.className && (currentNode.className === 'q' || currentNode.className === 'q2')) {
-      currentNode.nodeT
-    }
-  }
 }
 
 function insertVerses(nodeWithTextChildren, lastIdAsNumber) {

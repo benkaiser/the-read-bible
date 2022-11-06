@@ -1,28 +1,23 @@
-<!doctype html>
-<html lang="en" class="h-100">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <title>The Read Bible</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
-    <link href="index.css" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-  </head>
-  <body class="d-flex h-100 read-body">
-    <div id='root' class='d-flex h-100 w-100'></div>
-    <script type="module" src="readChapter.js"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+---
+layout: default
+title: Read Chapter
+---
 
-      gtag('config', 'G-6LEB2EKN12');
-    </script>
-  </div>
-  </body>
-</html>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="mb-4">
+    <div>
+      <h3 class="float-md-start mb-0">The Read Bible</h3>
+      <nav class="nav nav-masthead justify-content-center float-md-end">
+        <a class="nav-link" href="./">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <div id='root' class='d-flex'></div>
+
+  <footer class="mt-auto pt-4">
+    <p>Created with ❤️ by <a href="https://benkaiser.dev/about">Benjamin Kaiser</a>.</p>
+  </footer>
+</div>
+<script type="module" src="readChapter.js"></script>

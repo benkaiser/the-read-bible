@@ -1,7 +1,7 @@
 import { React, ReactDOM, html } from "./deps.js";
 import { books, bookFiles, chapters } from "./data/books.js";
 
-const Selector = (props) => {
+const App = (props) => {
   const [book, setBook] = React.useState('john');
   const [chapter, setChapter] = React.useState(3);
   const refBook = React.useRef(null);
@@ -10,9 +10,6 @@ const Selector = (props) => {
   console.log(numChapters);
   const goToRead = function() {
     window.location.href = `./readchapter?book=${book}&chapter=${chapter}`;
-  };
-  const goToInsturctions = function() {
-    window.location.href = `./instructions?book=${book}&chapter=${chapter}`;
   };
   const onSelectBook = function() {
     setBook(refBook.current.value);
@@ -49,50 +46,21 @@ const Selector = (props) => {
       </div>
       <div className='col-md-2 mb-3 d-grid'>
         <button className='btn btn-secondary btn-block align-self-end' onClick=${pickRandom}>
-          <i className="bi bi-dice-3"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dice-3" viewBox="0 0 16 16">
+            <path d="M13 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10zM3 0a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3H3z"/>
+            <path d="M5.5 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm8 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-4-4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+          </svg>
         </button>
       </div>
     </div>
     <div className='d-grid'>
       <button className='btn btn-primary btn-lg btn-block' onClick=${goToRead}>Read</button>
     </div>
-    <div className='d-grid mt-2'>
-      <button className='btn btn-secondary btn-block' onClick=${goToInsturctions}>Recording Instructions</button>
-    </div>
   </div>
-  `;
-}
-
-const App = (props) => {
-  return html`
-  <${React.Fragment}>
-    <div className="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header className="mb-auto">
-      <div>
-        <h3 className="float-md-start mb-0">The Read Bible</h3>
-        <nav className="nav nav-masthead justify-content-center float-md-end">
-          <a className="nav-link" aria-current="page" href="./">Home</a>
-          <a className="nav-link active" href="#">Read</a>
-          <a className="nav-link" href="listen">Listen</a>
-          <a className="nav-link" href="listen#/submit">Submit</a>
-        </nav>
-      </div>
-    </header>
-
-    <main className="px-3">
-      <h1>Read the Bible</h1>
-      <p className="lead">Record yourself reading the Bible to share with others.</p>
-      <${Selector} />
-    </main>
-
-    <footer className="mt-auto">
-      <p>Created with ❤️ by <a href="https://benkaiser.dev/about">Benjamin Kaiser</a>.</p>
-    </footer>
-  </${React.Fragment}>
   `;
 }
 
 ReactDOM.render(
   html`<${App} />`,
-  document.getElementById('root')
+  document.getElementById('reactRoot')
 );
