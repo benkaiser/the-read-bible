@@ -71,18 +71,6 @@ function main() {
     const onChangeVideo = React.useCallback(() => {
       setVideo(extractVideoId(refVideo.current.value));
     });
-    const waitForUpload = React.useCallback((videoId, bookName) => {
-      setInterval(() => {
-        fetch('./data/recordings.json?cachebust=' + Math.random())
-        .then(response => response.json())
-        .then((response) => {
-          if (response.findIndex(item => item.videoId === videoId) !== -1) {
-            window.location.href = `listen#/book/${bookName}`;
-            window.location.reload();
-          }
-        });
-      }, 5000);
-    });
     const onSubmit = React.useCallback(() => {
       const book = refBook.current.value;
       const chapter = refChapter.current.value;
@@ -97,26 +85,27 @@ function main() {
       }
       setStatus('Adding recording');
       setLoading(true);
-      fetch("https://publicactiontrigger.azurewebsites.net/api/dispatches/benkaiser/the-read-bible", {
+      fetch("/api/recording", {
         method: 'POST',
         mode: 'cors',
-        body: JSON.stringify({ event_type: 'Create Paste', client_payload: { data: JSON.stringify({
-          book: escape(book),
-          chapter: escape(chapter),
-          speaker: escape(speaker),
+        body: JSON.stringify({
+          book: book,
+          chapter: chapter,
+          speaker: speaker,
           gravatarHash: gravatarHash,
-          videoId: escape(video)
-        })}})
+          videoId: video
+        })
       }).then((response) => {
         if (response.status === 200 || response.status === 204) {
-          setStatus('Processing. Will redirect when available (can take up to 1 minute)');
-          setLoading(true);
-          waitForUpload(video, book);
+          window.location.href = `listen#/book/${book}`;
+          window.location.reload();
         } else {
-          setStatus('Submit failed');
+          setStatus('Submit failed, see console for error');
+          response.text().then(text => console.error(text));
           setLoading(false);
         }
-      }).catch(() => {
+      }).catch((error) => {
+        console.error(error);
         setStatus('Submit failed');
         setLoading(false);
       });
@@ -269,7 +258,7 @@ function main() {
     const [data, setData] = React.useState();
 
     React.useEffect(() => {
-      fetch('data/recordings.json?cachebust=' + Math.random())
+      fetch('./api/recordings')
       .then(response => response.json())
       .then(responseJson => {
         setData(responseJson);

@@ -34,7 +34,7 @@ function fetchAndCache(request) {
 }
 
 self.addEventListener('fetch', event => {
-  if (event.request.url.startsWith(self.location.origin) && !event.request.url.contains('recordings.json')) {
+  if (event.request.url.startsWith(self.location.origin) && !event.request.url.contains('/api')) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
