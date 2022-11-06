@@ -98,6 +98,80 @@ function htmlToElement(html) {
   return template.content.firstChild;
 }
 
+const worker = new Worker('worker.js');
+let recorder;
+
+const RecordingControls = (props) => {
+  const [currentlyRecording, setCurrentlyRecording] = React.useState(false);
+  const [ recordingCreated, setRecordingCreated ] = React.useState(false);
+  const startRecording = () => {
+    setCurrentlyRecording(true);
+    navigator.mediaDevices
+      .getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } })
+      .then(
+        (stream) => {
+          const mediaStream = stream;
+          recorder = new window.mp3MediaRecorder.Mp3MediaRecorder(stream, { worker });
+          let blobs = [];
+          recorder.start();
+
+          recorder.onstart = (e) => {
+            console.log('onstart', e);
+            blobs = [];
+          };
+
+          recorder.ondataavailable = (e) => {
+            console.log('ondataavailable', e);
+            blobs.push(e.data);
+          };
+
+          recorder.onstop = (e) => {
+            console.log('onstop', e);
+            mediaStream.getTracks().forEach((track) => track.stop());
+
+            const mp3Blob = new Blob(blobs, { type: 'audio/mpeg' });
+            const mp3BlobUrl = URL.createObjectURL(mp3Blob);
+            const audio = new Audio();
+            audio.controls = true;
+            audio.src = mp3BlobUrl;
+            document.getElementById('recordings').appendChild(audio);
+          };
+
+          recorder.onpause = (e) => {
+            console.log('onpause', e);
+          };
+
+          recorder.onresume = (e) => {
+            console.log('onresume', e);
+          };
+
+          recorder.onerror = (e) => {
+            console.error('onerror', e);
+          };
+        },
+        (reason) => {
+          console.warn('Could not get microphone access.\nError:', reason.message);
+        }
+      );
+  };
+  const stopRecording = () => {
+    setCurrentlyRecording(false);
+    setRecordingCreated(true);
+    recorder.stop();
+  }
+  const playRecording = () => {
+
+  }
+  return html`
+    <div className="recordingControls">
+      ${ !currentlyRecording ? html`<button className="recordButton btn btn-primary" onClick=${startRecording}>${ recordingCreated ? `Re-record` : `Record` }</button>` : ''}
+      ${ currentlyRecording ? html`<button className="stopButton btn btn-primary" onClick=${stopRecording}>Stop</button>` : ''}
+      ${ recordingCreated ? html`<button className="playButton btn btn-primary" onClick=${playRecording}>Play</button>` : ''}
+      <div id='recordings'></div>
+    </div>
+  `;
+}
+
 const App = (props) => {
   const [content, setContent] = React.useState(undefined);
   const [verseCount, setVerseCount] = React.useState(1);
@@ -168,6 +242,7 @@ const App = (props) => {
 
   return html`
   <div className='readChapterContainer mx-auto'>
+    <${RecordingControls} />
     ${ content ? html`<div className='scripture' onTouchStart=${() => setIsMobile(true)} onClick=${onTouch} dangerouslySetInnerHTML=${ { __html: content }}></div>
     ` : 'Loading' }
     <style dangerouslySetInnerHTML=${ { __html: `
