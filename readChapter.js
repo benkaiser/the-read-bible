@@ -100,10 +100,19 @@ function htmlToElement(html) {
 
 const worker = new Worker('worker.js');
 let recorder;
+let mp3Blob;
+let mp3BlobUrl;
 
 const RecordingControls = (props) => {
-  const [currentlyRecording, setCurrentlyRecording] = React.useState(false);
-  const [ recordingCreated, setRecordingCreated ] = React.useState(false);
+  const [ currentlyRecording, setCurrentlyRecording] = React.useState(false);
+  const [ recordingCreated, setRecordingCreated ] = React.useState(!!mp3Blob);
+  const audioRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (mp3BlobUrl && audioRef.current) {
+      audioRef.current.src = mp3BlobUrl;
+    }
+  }, []);
   const startRecording = () => {
     setCurrentlyRecording(true);
     navigator.mediaDevices
@@ -129,12 +138,9 @@ const RecordingControls = (props) => {
             console.log('onstop', e);
             mediaStream.getTracks().forEach((track) => track.stop());
 
-            const mp3Blob = new Blob(blobs, { type: 'audio/mpeg' });
-            const mp3BlobUrl = URL.createObjectURL(mp3Blob);
-            const audio = new Audio();
-            audio.controls = true;
-            audio.src = mp3BlobUrl;
-            document.getElementById('recordings').appendChild(audio);
+            mp3Blob = new Blob(blobs, { type: 'audio/mpeg' });
+            mp3BlobUrl = URL.createObjectURL(mp3Blob);
+            audioRef.current.src = mp3BlobUrl;
           };
 
           recorder.onpause = (e) => {
@@ -160,15 +166,22 @@ const RecordingControls = (props) => {
     recorder.stop();
   }
   const playRecording = () => {
-
+    audioRef.current.play();
   }
   return html`
     <div className="recordingControls">
-      ${ !currentlyRecording ? html`<button className="recordButton btn btn-primary" onClick=${startRecording}>${ recordingCreated ? `Re-record` : `Record` }</button>` : ''}
-      ${ currentlyRecording ? html`<button className="stopButton btn btn-primary" onClick=${stopRecording}>Stop</button>` : ''}
-      ${ recordingCreated ? html`<button className="playButton btn btn-primary" onClick=${playRecording}>Play</button>` : ''}
-      <div id='recordings'></div>
+      ${ !currentlyRecording && recordingCreated ? html`<button className="playButton btn btn-primary me-2" onClick=${playRecording}>Play</button>` : ''}
+      ${ !currentlyRecording ? html`<button className="recordButton btn btn-primary me-2" onClick=${startRecording}>${ recordingCreated ? `New Recording` : `Record` }</button>` : ''}
+      ${ currentlyRecording ? html`<button className="stopButton btn btn-primary" onClick=${stopRecording}>Finish</button>` : ''}
+      <button onClick=${props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
+      <audio src="" ref=${audioRef}></audio>
     </div>
+  `;
+}
+
+const ListenControls = (props) => {
+  return html`
+    <div className='listenControls'><div>Select a speaker or </div><button onClick=${props.onSwitch} className='btn btn-secondary float-end'>Record Your Own</button></div>
   `;
 }
 
@@ -177,6 +190,7 @@ const App = (props) => {
   const [verseCount, setVerseCount] = React.useState(1);
   const [verseIndex, setFocusedVerse] = React.useState(1);
   const [isMobile, setIsMobile] = React.useState(false);
+  const [inListenMode, setInListenMode] = React.useState(true);
 
   React.useEffect(() => {
     fetch(`./data/chapters/${bookSelected}${chapterSelected}.html`)
@@ -225,6 +239,10 @@ const App = (props) => {
     };
   }, [handleUserKeyPress]);
 
+  const onSwitchMode = () => {
+    setInListenMode(!inListenMode);
+  }
+
   const onTouch = React.useCallback((event) => {
     if (isMobile && event.target) {
       try {
@@ -242,8 +260,12 @@ const App = (props) => {
 
   return html`
   <div className='readChapterContainer mx-auto'>
-    <${RecordingControls} />
-    ${ content ? html`<div className='scripture' onTouchStart=${() => setIsMobile(true)} onClick=${onTouch} dangerouslySetInnerHTML=${ { __html: content }}></div>
+    <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
+      ${ inListenMode ?
+        html`<${ListenControls}  onSwitch=${onSwitchMode} />` :
+        html`<${RecordingControls} onSwitch=${onSwitchMode} />`}
+    </div>
+    ${ content ? html`<div className='scripture my-2' onTouchStart=${() => setIsMobile(true)} onClick=${onTouch} dangerouslySetInnerHTML=${ { __html: content }}></div>
     ` : 'Loading' }
     <style dangerouslySetInnerHTML=${ { __html: `
       #V${verseIndex}, #V${verseIndex}C {

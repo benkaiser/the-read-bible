@@ -42,6 +42,23 @@
 
 /** ReadChapter **/
 
+@media screen and (max-width: 800px) {
+  .site-header {
+    padding-right: 70px;
+  }
+}
+
+
+.controlsHeader {
+  top: 10px;
+}
+
+.listenControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .readChapterContainer {
 }
 
@@ -49,6 +66,7 @@
   font-family: 'Open Sans', sans-serif;
   font-size: 28px;
   line-height: 2em;
+  padding: 0 10px;
   font-weight: medium;
 }
 
