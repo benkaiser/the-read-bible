@@ -98,6 +98,54 @@ function htmlToElement(html) {
   return template.content.firstChild;
 }
 
+function secondsToMinuteSeconds(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secondsLeft = Math.floor(seconds % 60);
+  return `${minutes}:${secondsLeft.toString().padStart(2, '0')}`;
+}
+
+let currentTimeInterval;
+
+const CurrentTime = (props) => {
+  const [ duration, setDuration ] = React.useState(props.audio.duration || 0);
+  // only used to force a state update
+  const [ _, setCurrentTime ] = React.useState(0);
+  const currentTime = props.audio.currentTime;
+  props.audio.addEventListener('loadedmetadata', () => {
+    setDuration(props.audio.duration);
+  });
+  React.useEffect(() => {
+    currentTimeInterval = setInterval(() => {
+      setCurrentTime(props.audio.currentTime);
+    }, 100);
+    return () => {
+      currentTimeInterval && clearInterval(currentTimeInterval);
+    };
+  }, []);
+  return html`
+    <span className='currentTime'>${ secondsToMinuteSeconds(currentTime) } / ${ secondsToMinuteSeconds(duration) }</span>
+  `;
+}
+
+const Pause = () => {
+  return html`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" className="bi bi-pause" viewBox="0 0 16 16">
+    <path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
+  </svg>`;
+}
+
+const Play = () => {
+  return html`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" className="bi bi-play" viewBox="0 0 16 16">
+    <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+  </svg>`;
+}
+
+const Recording = () => {
+  return html`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#f00" class="bi bi-record2" viewBox="0 0 16 16">
+    <path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1A5 5 0 1 0 8 3a5 5 0 0 0 0 10z"/>
+    <path d="M10 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+  </svg>`;
+}
+
 const worker = new Worker('worker.js');
 let recorder;
 let mp3Blob;
@@ -106,6 +154,7 @@ let mp3BlobUrl;
 const RecordingControls = (props) => {
   const [ currentlyRecording, setCurrentlyRecording] = React.useState(false);
   const [ recordingCreated, setRecordingCreated ] = React.useState(!!mp3Blob);
+  const [ isPlaying, setIsPlaying ] = React.useState(false);
   const audioRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -161,20 +210,35 @@ const RecordingControls = (props) => {
       );
   };
   const stopRecording = () => {
+    recorder.stop();
     setCurrentlyRecording(false);
     setRecordingCreated(true);
-    recorder.stop();
   }
   const playRecording = () => {
     audioRef.current.play();
+    setIsPlaying(true);
+  }
+  const pauseRecording = () => {
+    setIsPlaying(false);
+    audioRef.current.pause();
+  }
+  const onPause = () => {
+    setIsPlaying(false);
   }
   return html`
     <div className="recordingControls">
-      ${ !currentlyRecording && recordingCreated ? html`<button className="playButton btn btn-primary me-2" onClick=${playRecording}>Play</button>` : ''}
-      ${ !currentlyRecording ? html`<button className="recordButton btn btn-primary me-2" onClick=${startRecording}>${ recordingCreated ? `New Recording` : `Record` }</button>` : ''}
-      ${ currentlyRecording ? html`<button className="stopButton btn btn-primary" onClick=${stopRecording}>Finish</button>` : ''}
-      <button onClick=${props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
-      <audio src="" ref=${audioRef}></audio>
+      <div className="leftControls">
+        ${ !currentlyRecording && recordingCreated ? html`<button className="playButton btn btn-primary" onClick=${isPlaying ? pauseRecording : playRecording}>${ isPlaying ? html`<${Pause} />` : html`<${Play} />` }</button>` : ''}
+        ${ !currentlyRecording ? html`<button className="recordButton btn btn-primary" onClick=${startRecording}>${ recordingCreated ? `New Recording` : `Record` }</button>` : ''}
+        ${ currentlyRecording ? html`<button className="stopButton btn btn-primary" onClick=${stopRecording}>Finish</button>` : ''}
+        <span className='stats'>
+          ${ currentlyRecording ? html`<${Recording} />` : recordingCreated ? html`<${CurrentTime} audio=${audioRef.current} />` : '' }
+        </span>
+      </div>
+      <div className='rightControls'>
+        <button onClick=${props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
+      </div>
+      <audio onPause=${onPause} src="" ref=${audioRef}></audio>
     </div>
   `;
 }
