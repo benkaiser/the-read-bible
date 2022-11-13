@@ -31,7 +31,7 @@ export default function RecordingControls(props: IRecordingControlProps): JSX.El
         (stream) => {
           const mediaStream = stream;
           recorder = new Mp3MediaRecorder(stream, { worker });
-          let blobs = [];
+          let blobs: Blob[] = [];
           recorder.start();
 
           recorder.onstart = (e) => {

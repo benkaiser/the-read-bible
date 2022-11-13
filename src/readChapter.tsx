@@ -10,7 +10,7 @@ const chapterSelected = parseInt(searchParams.get('chapter')!);
 const bookIndex = bookFiles.findIndex(book => book === bookSelected);
 const bookNiceName = books[bookIndex];
 
-function newVerseElement(contents, lastId) {
+function newVerseElement(contents, lastId: string): HTMLSpanElement {
   const span = document.createElement('span');
   span.classList.add('verseContents');
   span.id = lastId + 'C';
@@ -27,25 +27,25 @@ function newVerseElement(contents, lastId) {
   return span;
 }
 
-function insertVerses(nodeWithTextChildren, lastIdAsNumber) {
-  let storedContents = [];
-  const newChildren = [];
+function insertVerses(nodeWithTextChildren: Element, lastIdAsNumber) {
+  let storedContents: Array<string|Node> = [];
+  const newChildren: Array<Node> = [];
   let lastId = 'V' + lastIdAsNumber;
   for (let x = 0; x < nodeWithTextChildren.childNodes.length; x++) {
-    let currentNode = nodeWithTextChildren.childNodes[x];
-    if (currentNode.nodeType === 1 && currentNode.className === 'verse') {
+    let currentNode: ChildNode = nodeWithTextChildren.childNodes[x];
+    if (currentNode.nodeType === 1 && (currentNode as HTMLElement).className === 'verse') {
       if (storedContents.length > 0) {
         newChildren.push(newVerseElement(storedContents, lastId));
       }
       storedContents = [];
-      lastId = currentNode.id;
+      lastId = (currentNode as HTMLElement).id;
       newChildren.push(currentNode.cloneNode(true));
       continue;
     }
-    if (currentNode.nodeType === 3 && currentNode.textContent.trim().length === 0) {
+    if (currentNode.nodeType === 3 && (currentNode as Text).textContent?.trim().length === 0) {
       continue;
     } else if (currentNode.nodeType === 3) {
-      storedContents.push(currentNode.textContent.trim());
+      storedContents.push((currentNode as Text).textContent!.trim());
     } else {
       storedContents.push(currentNode.cloneNode(true));
     }
@@ -64,18 +64,18 @@ function insertVerses(nodeWithTextChildren, lastIdAsNumber) {
   }
 }
 
-function processContent(contents) {
+function processContent(contents: string): { contents: string, verseCount: number} {
   const element = htmlToElement(contents);
   element.querySelector('.chapterlabel');
-  const chapterLabel = element.querySelector('.chapterlabel').innerText;
+  const chapterLabel: string = element.querySelector<HTMLElement>('.chapterlabel')?.innerText ?? '';
   // replace only numbers with a book name
   if (/^[0-9]*$/.test(chapterLabel.trim())) {
-    element.querySelector('.chapterlabel').innerText = bookNiceName + ' ' + chapterLabel;
+    element.querySelector<HTMLElement>('.chapterlabel')!.innerText = bookNiceName + ' ' + chapterLabel;
   }
   // remove notemarks
   const notemarks = element.getElementsByClassName("notemark");
   while (notemarks[0]) {
-      notemarks[0].parentNode.removeChild(notemarks[0]);
+      notemarks[0].parentNode?.removeChild(notemarks[0]);
   }
   // create verse text containers
   const paragraphs = element.querySelectorAll(".p, .q, .q2, .m, .pi, .pi2, .pi3, .pmr, .pr, .pmo, .pmc, .psi, .pc, .nb");
@@ -94,11 +94,11 @@ function addFooter(html) {
   return html + "<p class='copyright'>World English Bible (WEBBE) - Public Domain</p>";
 }
 
-function htmlToElement(html) {
+function htmlToElement(html: string): HTMLElement {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
-  return template.content.firstChild;
+  return template.content.firstChild as HTMLElement;
 }
 
 const App = (props) => {
