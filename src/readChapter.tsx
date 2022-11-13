@@ -1,9 +1,11 @@
-import { React, ReactDOM, html } from "./deps.js";
-import { books, bookFiles } from "./data/books.js";
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Mp3MediaRecorder } from 'mp3-mediarecorder';
+import { books, bookFiles } from "../data/books.js";
 
 const searchParams = new URLSearchParams(window.location.search);
 const bookSelected = searchParams.get('book');
-const chapterSelected = parseInt(searchParams.get('chapter'));
+const chapterSelected = parseInt(searchParams.get('chapter')!);
 const bookIndex = bookFiles.findIndex(book => book === bookSelected);
 const bookNiceName = books[bookIndex];
 
@@ -122,31 +124,29 @@ const CurrentTime = (props) => {
       currentTimeInterval && clearInterval(currentTimeInterval);
     };
   }, []);
-  return html`
-    <span className='currentTime'>${ secondsToMinuteSeconds(currentTime) } / ${ secondsToMinuteSeconds(duration) }</span>
-  `;
+  return <span className='currentTime'>{ secondsToMinuteSeconds(currentTime) } / { secondsToMinuteSeconds(duration) }</span>;
 }
 
 const Pause = () => {
-  return html`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" className="bi bi-pause" viewBox="0 0 16 16">
+  return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" className="bi bi-pause" viewBox="0 0 16 16">
     <path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
-  </svg>`;
+  </svg>;
 }
 
 const Play = () => {
-  return html`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" className="bi bi-play" viewBox="0 0 16 16">
+  return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" className="bi bi-play" viewBox="0 0 16 16">
     <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
-  </svg>`;
+  </svg>;
 }
 
 const Recording = () => {
-  return html`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#f00" class="bi bi-record2" viewBox="0 0 16 16">
+  return <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#f00" className="bi bi-record2" viewBox="0 0 16 16">
     <path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1A5 5 0 1 0 8 3a5 5 0 0 0 0 10z"/>
     <path d="M10 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
-  </svg>`;
+  </svg>;
 }
 
-const worker = new Worker('worker.js');
+const worker = new Worker('./dist/worker.js');
 let recorder;
 let mp3Blob;
 let mp3BlobUrl;
@@ -169,22 +169,19 @@ const RecordingControls = (props) => {
       .then(
         (stream) => {
           const mediaStream = stream;
-          recorder = new window.mp3MediaRecorder.Mp3MediaRecorder(stream, { worker });
+          recorder = new Mp3MediaRecorder(stream, { worker });
           let blobs = [];
           recorder.start();
 
           recorder.onstart = (e) => {
-            console.log('onstart', e);
             blobs = [];
           };
 
           recorder.ondataavailable = (e) => {
-            console.log('ondataavailable', e);
             blobs.push(e.data);
           };
 
           recorder.onstop = (e) => {
-            console.log('onstop', e);
             mediaStream.getTracks().forEach((track) => track.stop());
 
             mp3Blob = new Blob(blobs, { type: 'audio/mpeg' });
@@ -193,14 +190,15 @@ const RecordingControls = (props) => {
           };
 
           recorder.onpause = (e) => {
-            console.log('onpause', e);
+            // no-op
           };
 
           recorder.onresume = (e) => {
-            console.log('onresume', e);
+            // no-op
           };
 
           recorder.onerror = (e) => {
+            // todo: handle error
             console.error('onerror', e);
           };
         },
@@ -225,28 +223,24 @@ const RecordingControls = (props) => {
   const onPause = () => {
     setIsPlaying(false);
   }
-  return html`
-    <div className="recordingControls">
+  return <div className="recordingControls">
       <div className="leftControls">
-        ${ !currentlyRecording && recordingCreated ? html`<button className="playButton btn btn-primary" onClick=${isPlaying ? pauseRecording : playRecording}>${ isPlaying ? html`<${Pause} />` : html`<${Play} />` }</button>` : ''}
-        ${ !currentlyRecording ? html`<button className="recordButton btn btn-primary" onClick=${startRecording}>${ recordingCreated ? `New Recording` : `Record` }</button>` : ''}
-        ${ currentlyRecording ? html`<button className="stopButton btn btn-primary" onClick=${stopRecording}>Finish</button>` : ''}
+        { !currentlyRecording && recordingCreated ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
+        { !currentlyRecording ? <button className="recordButton btn btn-primary" onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
+        { currentlyRecording ? <button className="stopButton btn btn-primary" onClick={stopRecording}>Finish</button> : ''}
         <span className='stats'>
-          ${ currentlyRecording ? html`<${Recording} />` : recordingCreated ? html`<${CurrentTime} audio=${audioRef.current} />` : '' }
+          { currentlyRecording ? <Recording /> : recordingCreated ? <CurrentTime audio={audioRef.current} /> : '' }
         </span>
       </div>
       <div className='rightControls'>
-        <button onClick=${props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
+        <button onClick={props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
       </div>
-      <audio onPause=${onPause} src="" ref=${audioRef}></audio>
-    </div>
-  `;
+      <audio onPause={onPause} src="" ref={audioRef}></audio>
+    </div>;
 }
 
 const ListenControls = (props) => {
-  return html`
-    <div className='listenControls'><div>Select a speaker or </div><button onClick=${props.onSwitch} className='btn btn-secondary float-end'>Record Your Own</button></div>
-  `;
+  return <div className='listenControls'><div>Select a speaker or </div><button onClick={props.onSwitch} className='btn btn-secondary float-end'>Record Your Own</button></div>;
 }
 
 const App = (props) => {
@@ -322,16 +316,14 @@ const App = (props) => {
     }
   }, [isMobile]);
 
-  return html`
-  <div className='readChapterContainer mx-auto'>
+  return <div className='readChapterContainer mx-auto'>
     <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
-      ${ inListenMode ?
-        html`<${ListenControls}  onSwitch=${onSwitchMode} />` :
-        html`<${RecordingControls} onSwitch=${onSwitchMode} />`}
+      { inListenMode ?
+        <ListenControls  onSwitch={onSwitchMode} /> :
+        <RecordingControls onSwitch={onSwitchMode} />}
     </div>
-    ${ content ? html`<div className='scripture my-2' onTouchStart=${() => setIsMobile(true)} onClick=${onTouch} dangerouslySetInnerHTML=${ { __html: content }}></div>
-    ` : 'Loading' }
-    <style dangerouslySetInnerHTML=${ { __html: `
+    { content ? <div className='scripture my-2' onTouchStart={() => setIsMobile(true)} onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
+    <style dangerouslySetInnerHTML={ { __html: `
       #V${verseIndex}, #V${verseIndex}C {
         color: black;
       }
@@ -339,11 +331,9 @@ const App = (props) => {
         color: #d82e2e;
       }
     ` }}></style>
-  </div>
-  `;
+  </div>;
 }
 
-ReactDOM.render(
-  html`<${App} />`,
-  document.getElementById('root')
-);
+const container = document.getElementById('root');
+const root = createRoot(container!);
+root.render(<App />);

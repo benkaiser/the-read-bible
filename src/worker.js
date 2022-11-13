@@ -147,4 +147,4 @@ const initMp3MediaEncoder = ({vmsgWasmUrl})=>{
       }
   }));
 };
-initMp3MediaEncoder({ vmsgWasmUrl: 'https://unpkg.com/vmsg@0.4.0/vmsg.wasm' });
+initMp3MediaEncoder({ vmsgWasmUrl: './vmsg.wasm' });
