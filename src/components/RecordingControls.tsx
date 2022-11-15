@@ -3,20 +3,45 @@ import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import { Pause, Play, Recording } from './icons.js';
 import PlaybackTime from './PlaybackTime.js';
 
+interface IVerseTiming {
+  verse: number;
+  time: number;
+}
+
 const worker = new Worker('./dist/worker.js');
 let recorder: Mp3MediaRecorder;
 let mp3Blob: Blob;
 let mp3BlobUrl: string;
+let recordStartMark: number;
+let verseTimings: IVerseTiming[] = [];
+let verseTimingPlaybackIndex: number = 0;
 
-interface IRecordingControlProps {
-  onSwitch: () => void;
+function markVerseSwitch(verseNumber: number, timeOverride?: number): void {
+  verseTimings.push({ verse: verseNumber, time: timeOverride ?? Math.round(performance.now() - recordStartMark)});
 }
 
-export default function RecordingControls(props: IRecordingControlProps): JSX.Element {
+interface IRecordingControlProps extends React.ComponentProps<any> {
+  onSwitch: () => void;
+  changeVerse: (verse: number) => void;
+}
+
+interface IRecordingControlHandles {
+  changeVerse: (verseNumber: number) => void;
+}
+
+const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles, IRecordingControlProps> = (props: IRecordingControlProps, ref): JSX.Element => {
   const [ currentlyRecording, setCurrentlyRecording] = React.useState(false);
   const [ recordingCreated, setRecordingCreated ] = React.useState(!!mp3Blob);
   const [ isPlaying, setIsPlaying ] = React.useState(false);
-  const audioRef = React.useRef(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+
+  React.useImperativeHandle(ref, () => ({
+    changeVerse: (verseNumber: number) => {
+      if (currentlyRecording) {
+        markVerseSwitch(verseNumber);
+      }
+    }
+  }));
 
   React.useEffect(() => {
     if (mp3BlobUrl && audioRef.current) {
@@ -32,10 +57,14 @@ export default function RecordingControls(props: IRecordingControlProps): JSX.El
           const mediaStream = stream;
           recorder = new Mp3MediaRecorder(stream, { worker });
           let blobs: Blob[] = [];
+          props.changeVerse(1);
           recorder.start();
 
           recorder.onstart = (e) => {
             blobs = [];
+            recordStartMark = performance.now();
+            verseTimings = [];
+            markVerseSwitch(1, 0);
           };
 
           recorder.ondataavailable = (e) => {
@@ -47,7 +76,10 @@ export default function RecordingControls(props: IRecordingControlProps): JSX.El
 
             mp3Blob = new Blob(blobs, { type: 'audio/mpeg' });
             mp3BlobUrl = URL.createObjectURL(mp3Blob);
-            audioRef.current.src = mp3BlobUrl;
+            if (audioRef.current) {
+              audioRef.current.src = mp3BlobUrl;
+            }
+            console.log(verseTimings);
           };
 
           recorder.onpause = (e) => {
@@ -73,13 +105,29 @@ export default function RecordingControls(props: IRecordingControlProps): JSX.El
     setCurrentlyRecording(false);
     setRecordingCreated(true);
   }
+  const queueNextVerse = () => {
+    if (verseTimingPlaybackIndex >= verseTimings.length || !audioRef.current) {
+      return;
+    }
+    const currentPlaybackTime = audioRef.current.currentTime * 1000;
+    setTimeout(() => {
+      if (audioRef.current?.paused) {
+        return;
+      }
+      props.changeVerse(verseTimings[verseTimingPlaybackIndex].verse);
+      verseTimingPlaybackIndex++;
+      queueNextVerse();
+    }, verseTimings[verseTimingPlaybackIndex].time - currentPlaybackTime);
+  }
   const playRecording = () => {
-    audioRef.current.play();
+    audioRef.current?.play();
     setIsPlaying(true);
+    verseTimingPlaybackIndex = 0;
+    queueNextVerse();
   }
   const pauseRecording = () => {
     setIsPlaying(false);
-    audioRef.current.pause();
+    audioRef.current?.pause();
   }
   const onPause = () => {
     setIsPlaying(false);
@@ -90,7 +138,7 @@ export default function RecordingControls(props: IRecordingControlProps): JSX.El
         { !currentlyRecording ? <button className="recordButton btn btn-primary" onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
         { currentlyRecording ? <button className="stopButton btn btn-primary" onClick={stopRecording}>Finish</button> : ''}
         <span className='stats'>
-          { currentlyRecording ? <Recording /> : recordingCreated ? <PlaybackTime audio={audioRef.current} /> : '' }
+          { currentlyRecording ? <Recording /> : recordingCreated ? (audioRef.current && <PlaybackTime audio={audioRef.current} />) : '' }
         </span>
       </div>
       <div className='rightControls'>
@@ -99,3 +147,5 @@ export default function RecordingControls(props: IRecordingControlProps): JSX.El
       <audio onPause={onPause} src="" ref={audioRef}></audio>
     </div>;
 }
+
+export default React.forwardRef(RecordingControls);

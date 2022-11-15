@@ -90,7 +90,7 @@ function processContent(contents: string): { contents: string, verseCount: numbe
   };
 }
 
-function addFooter(html) {
+function addFooter(html: string): string {
   return html + "<p class='copyright'>World English Bible (WEBBE) - Public Domain</p>";
 }
 
@@ -102,11 +102,13 @@ function htmlToElement(html: string): HTMLElement {
 }
 
 const App = (props) => {
-  const [content, setContent] = React.useState(undefined);
+  const [content, setContent] = React.useState<string>('');
   const [verseCount, setVerseCount] = React.useState(1);
   const [verseIndex, setFocusedVerse] = React.useState(1);
   const [isMobile, setIsMobile] = React.useState(false);
   const [inListenMode, setInListenMode] = React.useState(true);
+  type RecordingControlsHandle = React.ElementRef<typeof RecordingControls>;
+  const recordingControlsRef = React.useRef<RecordingControlsHandle>(null);
 
   React.useEffect(() => {
     fetch(`./data/chapters/${bookSelected}${chapterSelected}.html`)
@@ -120,6 +122,9 @@ const App = (props) => {
       setVerseCount(actualVerseCount);
     });
   }, []);
+  React.useEffect(() => {
+    recordingControlsRef.current?.changeVerse(verseIndex);
+  }, [verseIndex]);
   const handleUserKeyPress = React.useCallback(event => {
     const { key, keyCode, code } = event;
     if(key === 'ArrowDown' || key === 'ArrowRight'){
@@ -178,7 +183,7 @@ const App = (props) => {
     <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
       { inListenMode ?
         <ListenControls onSwitch={onSwitchMode} /> :
-        <RecordingControls onSwitch={onSwitchMode} />}
+        <RecordingControls onSwitch={onSwitchMode} changeVerse={setFocusedVerse} ref={recordingControlsRef} />}
     </div>
     { content ? <div className='scripture my-2' onTouchStart={() => setIsMobile(true)} onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
     <style dangerouslySetInnerHTML={ { __html: `

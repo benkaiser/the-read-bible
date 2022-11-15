@@ -3,6 +3,7 @@
   "dependencies": {
     "@cloudflare/workers-types": "^3.18.0",
     "@prisma/client": "^4.5.0",
+    "@types/react": "^18.0.25",
     "bootstrap": "^5.2.2",
     "esbuild": "^0.15.13",
     "get-google-fonts": "^1.2.2",
