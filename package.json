@@ -6,7 +6,6 @@
     "@types/react": "^18.0.25",
     "bootstrap": "^5.2.2",
     "esbuild": "^0.15.13",
-    "get-google-fonts": "^1.2.2",
     "mp3-mediarecorder": "^4.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -16,8 +15,7 @@
     "prisma": "^4.5.0"
   },
   "scripts": {
-    "postinstall": "prisma generate --data-proxy && npm run fonts && npm run copy-assets && npm run build-prod",
-    "fonts": "get-google-fonts -i \"https://fonts.googleapis.com/css?family=Open+Sans\" -o dist/fonts/",
+    "postinstall": "prisma generate --data-proxy && npm run copy-assets && npm run build-prod",
     "copy-assets": "mkdir -p dist && cp node_modules/bootstrap/dist/css/bootstrap.min.css* dist/ && cp node_modules/vmsg/vmsg.wasm dist/",
     "build": "esbuild src/index.tsx src/readChapter.tsx src/worker.js src/service-worker.js --bundle --outdir=dist",
     "build-prod": "npm run build -- --minify --target=chrome104,firefox106,safari16",
