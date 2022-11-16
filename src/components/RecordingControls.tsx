@@ -3,6 +3,7 @@ import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import { Pause, Play, Recording } from './icons.js';
 import PlaybackTime from './PlaybackTime.js';
 import TimeCounter from './TimeCounter.js';
+import SubmitView, { ISubmitDetails } from './SubmitView.js';
 
 interface IVerseTiming {
   verse: number;
@@ -24,6 +25,8 @@ function markVerseSwitch(verseNumber: number, timeOverride?: number): void {
 interface IRecordingControlProps extends React.ComponentProps<any> {
   onSwitch: () => void;
   changeVerse: (verse: number) => void;
+  book: string;
+  chapter: number;
 }
 
 interface IRecordingControlHandles {
@@ -140,19 +143,45 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
   const onPause = () => {
     setIsPlaying(false);
   }
+  const onSubmit = (submitDetails: ISubmitDetails): Promise<boolean> => {
+    return fetch("/api/recording", {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify({
+        book: props.book,
+        chapter: props.chapter,
+        speaker: submitDetails.speakerName,
+        gravatarHash: submitDetails.gravatarHash,
+        audioTimestamps: verseTimings
+      })
+    }).then((response) => {
+      if (response.status === 200 || response.status === 204) {
+        return true;
+      } else {
+        response.text().then(text => console.error(text));
+        return false;
+      }
+    }).catch((error: Error) => {
+      console.log(error);
+      return false;
+    });
+  }
   return <div className="recordingControls">
-      <div className="leftControls">
-        { !currentlyRecording && recordingCreated ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
-        { !currentlyRecording ? <button className={`recordButton btn btn-${recordingCreated ? 'secondary' : 'primary'}`} onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
-        { currentlyRecording ? <button className="stopButton btn btn-primary" onClick={stopRecording}>Finish</button> : ''}
-        <span className='stats'>
-          { currentlyRecording ? <RecordingStatus /> : recordingCreated ? (audioRef.current && <PlaybackTime audio={audioRef.current} />) : '' }
-        </span>
+      <div className="recordingControlsTop">
+        <div className="leftControls">
+          { !currentlyRecording && recordingCreated ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
+          { !currentlyRecording ? <button className={`recordButton btn btn-${recordingCreated ? 'secondary' : 'primary'}`} onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
+          { currentlyRecording ? <button className="stopButton btn btn-primary" onClick={stopRecording}>Finish</button> : ''}
+          <span className='stats'>
+            { currentlyRecording ? <RecordingStatus /> : recordingCreated ? (audioRef.current && <PlaybackTime audio={audioRef.current} />) : '' }
+          </span>
+        </div>
+        <div className='rightControls'>
+          <button onClick={props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
+        </div>
+        <audio onPause={onPause} src="" ref={audioRef}></audio>
       </div>
-      <div className='rightControls'>
-        <button onClick={props.onSwitch} className="btn btn-secondary float-end">Back to Listen Mode</button>
-      </div>
-      <audio onPause={onPause} src="" ref={audioRef}></audio>
+      <SubmitView onSubmit={onSubmit} visible={recordingCreated && !currentlyRecording} />
     </div>;
 }
 

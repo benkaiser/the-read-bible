@@ -15,7 +15,7 @@ model Recordings {
   book    String
   chapter Int
   speaker String
-  gravatarHash String
+  gravatarHash String?
   videoId String?
   audioInformation Json?
   audioTimestamps Json?

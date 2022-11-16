@@ -183,7 +183,7 @@ const App = (props) => {
     <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
       { inListenMode ?
         <ListenControls onSwitch={onSwitchMode} /> :
-        <RecordingControls onSwitch={onSwitchMode} changeVerse={setFocusedVerse} ref={recordingControlsRef} />}
+        <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} ref={recordingControlsRef} />}
     </div>
     { content ? <div className='scripture my-2' onTouchStart={() => setIsMobile(true)} onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
     <style dangerouslySetInnerHTML={ { __html: `

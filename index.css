@@ -175,6 +175,12 @@
 
 .recordingControls {
   display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.recordingControlsTop {
+  display: flex;
   flex-wrap: wrap;
   row-gap: 10px;
 }
@@ -205,4 +211,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.submitRecordingHeader {
+  font-size: 24px;
 }
