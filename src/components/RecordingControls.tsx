@@ -2,6 +2,7 @@ import React from 'react';
 import { Mp3MediaRecorder } from 'mp3-mediarecorder';
 import { Pause, Play, Recording } from './icons.js';
 import PlaybackTime from './PlaybackTime.js';
+import TimeCounter from './TimeCounter.js';
 
 interface IVerseTiming {
   verse: number;
@@ -27,6 +28,13 @@ interface IRecordingControlProps extends React.ComponentProps<any> {
 
 interface IRecordingControlHandles {
   changeVerse: (verseNumber: number) => void;
+}
+
+const RecordingStatus: React.FunctionComponent = (): JSX.Element => {
+  return <div className='recordingStatus'>
+    <Recording />
+    <TimeCounter />
+  </div>;
 }
 
 const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles, IRecordingControlProps> = (props: IRecordingControlProps, ref): JSX.Element => {
@@ -135,10 +143,10 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
   return <div className="recordingControls">
       <div className="leftControls">
         { !currentlyRecording && recordingCreated ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
-        { !currentlyRecording ? <button className="recordButton btn btn-primary" onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
+        { !currentlyRecording ? <button className={`recordButton btn btn-${recordingCreated ? 'secondary' : 'primary'}`} onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
         { currentlyRecording ? <button className="stopButton btn btn-primary" onClick={stopRecording}>Finish</button> : ''}
         <span className='stats'>
-          { currentlyRecording ? <Recording /> : recordingCreated ? (audioRef.current && <PlaybackTime audio={audioRef.current} />) : '' }
+          { currentlyRecording ? <RecordingStatus /> : recordingCreated ? (audioRef.current && <PlaybackTime audio={audioRef.current} />) : '' }
         </span>
       </div>
       <div className='rightControls'>

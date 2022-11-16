@@ -71,7 +71,7 @@
 }
 
 .scripture .chapterlabel {
-  font-weight: bold;
+  font-weight: normal;
   font-size: 40px;
 }
 
@@ -199,4 +199,10 @@
   0% {fill: #f00}
   50% {fill:#b00}
   100% {fill:#f00}
+}
+
+.recordingStatus {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
