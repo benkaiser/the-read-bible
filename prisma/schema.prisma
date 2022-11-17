@@ -17,7 +17,7 @@ model Recordings {
   speaker String
   gravatarHash String?
   videoId String?
-  audioInformation Json?
+  audioFilename String?
   audioTimestamps Json?
 
   @@map("recordings")

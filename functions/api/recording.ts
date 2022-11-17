@@ -1,26 +1,35 @@
 import { PrismaClient } from '@prisma/client/edge';
+interface Env {
+  MY_BUCKET: R2Bucket
+  DATABASE_URL: string
+}
 
-export async function onRequestPost(context): Promise<Response> {
-  const requestBody = await context.request.json();
+export async function onRequestPost(context: EventContext<Env, any, any>): Promise<Response> {
   try {
-    const {
-      request,
-      env
-    } = context;
     const prisma = new PrismaClient({
       datasources: {
         db: {
-          url: env.DATABASE_URL
+          url: context.env.DATABASE_URL
         }
+      }
+    });
+    const formData = await context.request.formData();
+    const book = formData.get('book') as string;
+    const chapter = formData.get('chapter') as string;
+    const fileNameForAudio = `${+new Date()}_${book}_${chapter}.mp3`;
+    await context.env.MY_BUCKET.put(fileNameForAudio, formData.get('audioFile'), {
+      httpMetadata: {
+        contentType: 'audio/mpeg',
       }
     });
     return prisma.recordings.create({
       data: {
-        book: requestBody.book,
-        chapter: parseInt(requestBody.chapter),
-        speaker: requestBody.speaker,
-        gravatarHash: requestBody.gravatarHash,
-        videoId: requestBody.videoId
+        book: book,
+        chapter: parseInt(chapter),
+        speaker: formData.get('speaker') as string,
+        gravatarHash: formData.get('gravatarHash') as string,
+        audioFilename: fileNameForAudio,
+        audioTimestamps: JSON.parse(formData.get('audioTimestamps') as string),
       }
     }).then(() => {
       return new Response(JSON.stringify({ success: true }));

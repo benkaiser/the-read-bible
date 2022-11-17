@@ -90,7 +90,6 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
             if (audioRef.current) {
               audioRef.current.src = mp3BlobUrl;
             }
-            console.log(verseTimings);
           };
 
           recorder.onpause = (e) => {
@@ -144,16 +143,16 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
     setIsPlaying(false);
   }
   const onSubmit = (submitDetails: ISubmitDetails): Promise<boolean> => {
+    const formData = new FormData();
+    formData.append('book', props.book);
+    formData.append('chapter', props.chapter.toString());
+    formData.append('audioTimestamps', JSON.stringify(verseTimings));
+    formData.append('audioFile', mp3Blob, `${props.book}_${props.chapter}_${submitDetails.speakerName}.mp3`);
+    formData.append('speaker', submitDetails.speakerName);
+    formData.append('gravatarHash', submitDetails.gravatarHash);
     return fetch("/api/recording", {
       method: 'POST',
-      mode: 'cors',
-      body: JSON.stringify({
-        book: props.book,
-        chapter: props.chapter,
-        speaker: submitDetails.speakerName,
-        gravatarHash: submitDetails.gravatarHash,
-        audioTimestamps: verseTimings
-      })
+      body: formData
     }).then((response) => {
       if (response.status === 200 || response.status === 204) {
         return true;
@@ -162,7 +161,7 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
         return false;
       }
     }).catch((error: Error) => {
-      console.log(error);
+      console.error(error);
       return false;
     });
   }

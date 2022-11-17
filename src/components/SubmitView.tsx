@@ -35,7 +35,7 @@ export default function SubmitView(props: ISubmitViewProps): JSX.Element | null 
       setLoading(false);
       setStatus(result ? 'Recording submitted, please reload to see your recording' : 'Unable to save your recording, see console for errors')
     });
-  }, [props.onSubmit]);
+  }, [props.onSubmit, reader, gravatarHash]);
 
   if (!props.visible) {
     return null;
