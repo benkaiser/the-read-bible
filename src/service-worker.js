@@ -3,14 +3,9 @@ const resourceCache = 'resourceCache';
 // A list of local resources we always want to be cached.
 const PRECACHE_URLS = [
   './', // Alias for index.html
-  'read',
-  'listen',
   'readchapter',
   'readChapter.js',
-  'listen.js',
-  'read.js',
-  'index.css',
-  'deps.js'
+  'index.css'
 ];
 
 // The install handler takes care of precaching the resources we always need.

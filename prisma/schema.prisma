@@ -19,6 +19,7 @@ model Recordings {
   videoId String?
   audioFilename String?
   audioTimestamps Json?
+  createdAt DateTime @default(now())
 
   @@map("recordings")
 }

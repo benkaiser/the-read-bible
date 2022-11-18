@@ -154,9 +154,9 @@ const App = (props) => {
   }, [verseIndex]);
 
   React.useEffect(() => {
-    window.addEventListener("keydown", handleUserKeyPress);
+    window.addEventListener("keyup", handleUserKeyPress);
     return () => {
-      window.removeEventListener("keydown", handleUserKeyPress);
+      window.removeEventListener("keyup", handleUserKeyPress);
     };
   }, [handleUserKeyPress]);
 
@@ -182,7 +182,7 @@ const App = (props) => {
   return <div className='readChapterContainer mx-auto'>
     <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
       { inListenMode ?
-        <ListenControls onSwitch={onSwitchMode} /> :
+        <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} /> :
         <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} ref={recordingControlsRef} />}
     </div>
     { content ? <div className='scripture my-2' onTouchStart={() => setIsMobile(true)} onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }

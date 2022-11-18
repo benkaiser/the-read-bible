@@ -5,7 +5,7 @@ import PlaybackTime from './PlaybackTime.js';
 import TimeCounter from './TimeCounter.js';
 import SubmitView, { ISubmitDetails } from './SubmitView.js';
 
-interface IVerseTiming {
+export interface IVerseTiming {
   verse: number;
   time: number;
 }

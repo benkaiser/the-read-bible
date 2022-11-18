@@ -16,6 +16,7 @@ export default function SubmitView(props: ISubmitViewProps): JSX.Element | null 
   const [reader, setReader] = React.useState('John Smith');
   const [status, setStatus] = React.useState<string>('');
   const [loading, setLoading] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
   const refEmail = React.useRef<HTMLInputElement>(null);
   const refName = React.useRef<HTMLInputElement>(null);
 
@@ -33,7 +34,8 @@ export default function SubmitView(props: ISubmitViewProps): JSX.Element | null 
       gravatarHash: gravatarHash
     }).then((result: boolean) => {
       setLoading(false);
-      setStatus(result ? 'Recording submitted, please reload to see your recording' : 'Unable to save your recording, see console for errors')
+      setSuccess(result);
+      setStatus(result ? 'Recording submitted, return to listen mode to find your recording' : 'Unable to save your recording, pleas try again later');
     });
   }, [props.onSubmit, reader, gravatarHash]);
 
@@ -43,7 +45,8 @@ export default function SubmitView(props: ISubmitViewProps): JSX.Element | null 
 
   return <div>
     <h2 className='submitRecordingHeader'>Submit Recording</h2>
-    <div className='row'>
+    { !success ?
+      <div className='row'>
       <div className='col-lg-12'>
         <div className="mb-3">
           <label htmlFor="readerName">Reader Name</label>
@@ -70,5 +73,11 @@ export default function SubmitView(props: ISubmitViewProps): JSX.Element | null 
         {loading ? <div key="spinner" className="lds-facebook"><div></div><div></div><div></div></div> : ''}
       </div>
     </div>
+    : status ?
+      <div className="alert alert-success mt-3 mb-0" role="alert">
+        {status}
+      </div>
+      : ''
+    }
   </div>
 }
