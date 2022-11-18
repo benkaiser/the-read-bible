@@ -29,6 +29,7 @@ export async function onRequestPost(context: EventContext<Env, any, any>): Promi
         speaker: formData.get('speaker') as string,
         gravatarHash: formData.get('gravatarHash') as string,
         audioFilename: fileNameForAudio,
+        submitterIp: context.request.headers.get('cf-connecting-ip'),
         audioTimestamps: JSON.parse(formData.get('audioTimestamps') as string),
       }
     }).then(() => {

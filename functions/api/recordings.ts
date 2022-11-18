@@ -1,5 +1,12 @@
 import { PrismaClient } from '@prisma/client/edge';
 
+function exclude(recording: any, keys: string[]) {
+  for (let key of keys) {
+    delete recording[key]
+  }
+  return recording
+}
+
 export async function onRequestGet(context): Promise<Response> {
   try {
     const env = context.env;
@@ -11,7 +18,7 @@ export async function onRequestGet(context): Promise<Response> {
       }
     });
     return prisma.recordings.findMany().then((recordings) => {
-      return new Response(JSON.stringify(recordings));
+      return new Response(JSON.stringify(recordings.map(recording => exclude(recording, ['submitterIp']))));
     });
   } catch (exception) {
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
