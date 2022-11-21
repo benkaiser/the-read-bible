@@ -54,9 +54,8 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
       audioRef.current!.play();
     }
     setIsPlaying(true);
-    queueNextVerse();
   }
-  const queueNextVerse = () => {
+  const queueNextVerse = React.useCallback(() => {
     if (!selectedRecording) {
       return;
     }
@@ -72,7 +71,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
       verseTimingPlaybackIndex++;
       queueNextVerse();
     }, selectedRecording.audioTimestamps[verseTimingPlaybackIndex].time - currentPlaybackTime);
-  }
+  }, [selectedRecording]);
   const pauseRecording = () => {
     setIsPlaying(false);
     audioRef.current?.pause();
@@ -107,6 +106,6 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
         </div>
       </div> }
       <button onClick={props.onSwitch} className='btn btn-secondary float-end'>Record Your Own</button>
-      <audio onPause={onPause} onEnded={onEnded} src={playingSrc} autoPlay={true} ref={audioRef}></audio>
+      <audio onPause={onPause} onPlay={queueNextVerse} onEnded={onEnded} src={playingSrc} autoPlay={true} ref={audioRef}></audio>
     </div>;
 }
