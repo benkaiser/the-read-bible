@@ -223,3 +223,17 @@
 .submitRecordingHeader {
   font-size: 24px;
 }
+
+.speakerSelector {
+  max-width: 150px;
+}
+
+.listenActions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.followButton {
+  padding-left: 5px;
+}

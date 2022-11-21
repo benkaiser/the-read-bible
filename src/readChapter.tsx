@@ -194,7 +194,7 @@ const App = (props) => {
   return <div className='readChapterContainer mx-auto'>
     <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
       { inListenMode ?
-        <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} focusAll={focusAll} /> :
+        <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} verseCount={verseCount} changeVerse={setFocusedVerse} focusAll={focusAll} /> :
         <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} focusAll={focusAll} ref={recordingControlsRef} />}
     </div>
     { content ? <div className='scripture my-2' onTouchStart={() => setIsMobile(true)} onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }

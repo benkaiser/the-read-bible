@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { IVerseTiming } from './RecordingControls';
-import { Pause, Play } from './icons.js';
+import { Check, Cross, Pause, Play } from './icons.js';
 
 interface IListenControlProps {
   onSwitch: () => void;
@@ -8,6 +8,7 @@ interface IListenControlProps {
   focusAll: () => void;
   book: string;
   chapter: number;
+  verseCount: number;
 }
 
 // TODO: move to esbuild build script with environment variables
@@ -30,6 +31,7 @@ interface IRecording {
 }
 let verseTimingPlaybackIndex: number = 0;
 let verseTimeout: number;
+let totalScrollHeight: number = document.body.scrollHeight;
 
 export default function ListenControls(props: IListenControlProps): JSX.Element {
   const [ loaded, setLoaded ] = React.useState(false);
@@ -39,6 +41,8 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
   const [ playingSrc, setPlayingSrc ] = React.useState<string>('');
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const [ isVerseTimingsPresent, setIsVerseTimingsPresent ] = React.useState(true);
+  const [ isFollowing, setIsFollowing ] = React.useState(true);
+  const isFollowingRef = React.useRef<boolean>(isFollowing);
 
   React.useEffect(() => {
     fetch(`/api/recordingsForChapter?book=${props.book}&chapter=${props.chapter}`)
@@ -56,25 +60,45 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
     }
     const shouldFocusVerse = !!selectedRecording?.audioTimestamps && isPlaying;
     setIsVerseTimingsPresent(shouldFocusVerse);
-    if (shouldFocusVerse) {
+    if (shouldFocusVerse && isFollowing) {
       props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
     } else {
       props.focusAll();
     }
-  }, [ selectedRecording, isPlaying ]);
+  }, [ selectedRecording, isPlaying, isFollowing ]);
   const playRecording = React.useCallback(() => {
     if (playingSrc === '') {
       setPlayingSrc(r2URLFromFilename(selectedRecording!.audioFilename));
     } else {
       audioRef.current!.play();
-      if (selectedRecording) {
+      if (selectedRecording && selectedRecording.audioTimestamps && isFollowing) {
         props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
       }
     }
     setIsPlaying(true);
-  }, [selectedRecording, playingSrc]);
+  }, [selectedRecording, playingSrc, isFollowing]);
+  const scrollV1Recording = React.useCallback(() => {
+    if (!isFollowingRef.current) {
+      return;
+    }
+    if (!audioRef.current || audioRef.current?.paused) {
+      return;
+    }
+    const progressThroughTrack = audioRef.current.currentTime / audioRef.current.duration;
+    window.scrollTo({ top: progressThroughTrack * totalScrollHeight, left: 0, behavior: 'smooth' });
+    const timeBetweenVersesApproximate: number = audioRef.current.duration / props.verseCount * 1000;
+    setTimeout(scrollV1Recording, timeBetweenVersesApproximate);
+  }, [props.verseCount]);
   const queueNextVerse = React.useCallback(() => {
+    if (!isFollowingRef.current) {
+      return;
+    }
     if (!selectedRecording) {
+      return;
+    }
+    if (!selectedRecording.audioTimestamps) {
+      totalScrollHeight = document.body.scrollHeight;
+      requestAnimationFrame(scrollV1Recording);
       return;
     }
     if (verseTimingPlaybackIndex >= selectedRecording.audioTimestamps.length || !audioRef.current) {
@@ -82,7 +106,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
     }
     const currentPlaybackTime = audioRef.current.currentTime * 1000;
     verseTimeout = setTimeout(() => {
-      if (audioRef.current?.paused) {
+      if (audioRef.current?.paused || !isFollowingRef.current) {
         return;
       }
       props.changeVerse(selectedRecording.audioTimestamps[verseTimingPlaybackIndex].verse);
@@ -109,20 +133,29 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
     setSelectedRecording(recordings.find(r => r.id === event.target.value) || null);
     setIsPlaying(false);
   }
+  const changeIsFollowing = React.useCallback(() => {
+    isFollowingRef.current = !isFollowing;
+    setIsFollowing(isFollowingState => !isFollowingState);
+    if (isVerseTimingsPresent && isFollowing) {
+      props.focusAll();
+    }
+    if (isVerseTimingsPresent && !isFollowing && selectedRecording) {
+      props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
+    }
+    requestAnimationFrame(() => queueNextVerse());
+  }, [isFollowing]);
   return <div className='listenControls'>
       { !loaded && <div>Loading recordings... </div> }
       { loaded && recordings.length > 0 && <div className='listenControlsStart'>
-        <span>
-          Reading
-        </span>
-        <select className="form-select" onChange={onChangeSpeaker}>
+        <select className="form-select speakerSelector" onChange={onChangeSpeaker}>
           { recordings.map((recording: IRecording) => {
             return <option key={recording.id} value={recording.id}>{recording.speaker}</option>
           })}
         </select>
-        { selectedRecording && <img className="user-image" src={`https://s.gravatar.com/avatar/${selectedRecording.gravatarHash}?s=40`} /> }
+        { selectedRecording && <img className="user-image" src={`https://s.gravatar.com/avatar/${selectedRecording.gravatarHash}?s=38`} /> }
         <div className='listenActions'>
           { selectedRecording ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
+          <button className={`followButton btn text-nowrap ${ isFollowing ? 'btn-success' : 'btn-secondary'}`} onClick={ changeIsFollowing }>{ isFollowing ? <Check /> : <Cross /> } Auto Scroll</button>
         </div>
       </div> }
       { loaded && recordings.length === 0 && <div>No recordings found for this chapter.</div> }
