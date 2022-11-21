@@ -111,7 +111,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
   }
   return <div className='listenControls'>
       { !loaded && <div>Loading recordings... </div> }
-      { loaded && <div className='listenControlsStart'>
+      { loaded && recordings.length > 0 && <div className='listenControlsStart'>
         <span>
           Reading
         </span>
@@ -120,10 +120,12 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
             return <option key={recording.id} value={recording.id}>{recording.speaker}</option>
           })}
         </select>
+        { selectedRecording && <img className="user-image" src={`https://s.gravatar.com/avatar/${selectedRecording.gravatarHash}?s=40`} /> }
         <div className='listenActions'>
           { selectedRecording ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
         </div>
       </div> }
+      { loaded && recordings.length === 0 && <div>No recordings found for this chapter.</div> }
       <button onClick={props.onSwitch} className='btn btn-secondary float-end'>Record Your Own</button>
       <audio onPause={onPause} onPlay={queueNextVerse} onEnded={onEnded} src={playingSrc} autoPlay={true} ref={audioRef}></audio>
     </div>;
