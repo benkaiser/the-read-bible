@@ -5,6 +5,7 @@ import { Pause, Play } from './icons.js';
 interface IListenControlProps {
   onSwitch: () => void;
   changeVerse: (verse: number) => void;
+  focusAll: () => void;
   book: string;
   chapter: number;
 }
@@ -28,6 +29,7 @@ interface IRecording {
   createdAt: string;
 }
 let verseTimingPlaybackIndex: number = 0;
+let verseTimeout: number;
 
 export default function ListenControls(props: IListenControlProps): JSX.Element {
   const [ loaded, setLoaded ] = React.useState(false);
@@ -36,6 +38,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
   const [ isPlaying, setIsPlaying ] = React.useState(false);
   const [ playingSrc, setPlayingSrc ] = React.useState<string>('');
   const audioRef = React.useRef<HTMLAudioElement>(null);
+  const [ isVerseTimingsPresent, setIsVerseTimingsPresent ] = React.useState(true);
 
   React.useEffect(() => {
     fetch(`/api/recordingsForChapter?book=${props.book}&chapter=${props.chapter}`)
@@ -47,14 +50,29 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
       setSelectedRecording(recordings[0]);
     })
   }, []);
-  const playRecording = () => {
+  React.useEffect(() => {
+    if (!selectedRecording) {
+      return;
+    }
+    const shouldFocusVerse = !!selectedRecording?.audioTimestamps && isPlaying;
+    setIsVerseTimingsPresent(shouldFocusVerse);
+    if (shouldFocusVerse) {
+      props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
+    } else {
+      props.focusAll();
+    }
+  }, [ selectedRecording, isPlaying ]);
+  const playRecording = React.useCallback(() => {
     if (playingSrc === '') {
       setPlayingSrc(r2URLFromFilename(selectedRecording!.audioFilename));
     } else {
       audioRef.current!.play();
+      if (selectedRecording) {
+        props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
+      }
     }
     setIsPlaying(true);
-  }
+  }, [selectedRecording, playingSrc]);
   const queueNextVerse = React.useCallback(() => {
     if (!selectedRecording) {
       return;
@@ -63,7 +81,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
       return;
     }
     const currentPlaybackTime = audioRef.current.currentTime * 1000;
-    setTimeout(() => {
+    verseTimeout = setTimeout(() => {
       if (audioRef.current?.paused) {
         return;
       }
@@ -75,6 +93,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
   const pauseRecording = () => {
     setIsPlaying(false);
     audioRef.current?.pause();
+    verseTimeout && clearTimeout(verseTimeout);
   }
   const onPause = () => {
     setIsPlaying(false);

@@ -25,6 +25,7 @@ function markVerseSwitch(verseNumber: number, timeOverride?: number): void {
 interface IRecordingControlProps extends React.ComponentProps<any> {
   onSwitch: () => void;
   changeVerse: (verse: number) => void;
+  focusAll: () => void;
   book: string;
   chapter: number;
 }
@@ -45,6 +46,13 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
   const [ recordingCreated, setRecordingCreated ] = React.useState(!!mp3Blob);
   const [ isPlaying, setIsPlaying ] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement>(null);
+
+  React.useEffect(() => {
+    props.changeVerse(1);
+    return () => {
+      props.focusAll();
+    };
+  }, [])
 
   React.useImperativeHandle(ref, () => ({
     changeVerse: (verseNumber: number) => {

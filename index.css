@@ -78,9 +78,13 @@
   font-size: 40px;
 }
 
-.scripture .p, .scripture .q, .scripture .q2, .scripture .m, .scripture .pi, .scripture .pi2, .scripture .pi3, .scripture .pmr, .scripture .pr, .scripture .pmo, .scripture .pmc, .scripture .psi, .scripture .pc, .scripture .nb {
-  color: #777;
+:root {
+  --verse-color: #777;
+  --words-of-jesus-color: #b95d5d;
+}
 
+.scripture .p, .scripture .q, .scripture .q2, .scripture .m, .scripture .pi, .scripture .pi2, .scripture .pi3, .scripture .pmr, .scripture .pr, .scripture .pmo, .scripture .pmc, .scripture .psi, .scripture .pc, .scripture .nb {
+  color: var(--verse-color);
 }
 
 .scripture .p {
@@ -89,7 +93,7 @@
 
 
 .scripture .wj {
-  color: #b95d5d;
+  color: var(--words-of-jesus-color);
 }
 
 .scripture .verse {
