@@ -151,16 +151,16 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
     setIsPlaying(false);
   }
   const onSubmit = (submitDetails: ISubmitDetails): Promise<boolean> => {
-    const formData = new FormData();
-    formData.append('book', props.book);
-    formData.append('chapter', props.chapter.toString());
-    formData.append('audioTimestamps', JSON.stringify(verseTimings));
-    formData.append('audioFile', mp3Blob, `${props.book}_${props.chapter}_${submitDetails.speakerName}.mp3`);
-    formData.append('speaker', submitDetails.speakerName);
-    formData.append('gravatarHash', submitDetails.gravatarHash);
+    const headers = new Headers();
+    headers.set('book', props.book);
+    headers.set('chapter', props.chapter.toString());
+    headers.set('audiotimestamps', JSON.stringify(verseTimings));
+    headers.set('speaker', submitDetails.speakerName);
+    headers.set('gravatarhash', submitDetails.gravatarHash);
     return fetch("/api/recording", {
       method: 'POST',
-      body: formData
+      headers: headers,
+      body: mp3Blob
     }).then((response) => {
       if (response.status === 200 || response.status === 204) {
         return true;

@@ -13,11 +13,10 @@ export async function onRequestPost(context: EventContext<Env, any, any>): Promi
         }
       }
     });
-    const formData = await context.request.formData();
-    const book = formData.get('book') as string;
-    const chapter = formData.get('chapter') as string;
+    const book = context.request.headers.get('book') as string;
+    const chapter = context.request.headers.get('chapter') as string;
     const fileNameForAudio = `${+new Date()}_${book}_${chapter}.mp3`;
-    await context.env.MY_BUCKET.put(fileNameForAudio, formData.get('audioFile'), {
+    await context.env.MY_BUCKET.put(fileNameForAudio, context.request.body, {
       httpMetadata: {
         contentType: 'audio/mpeg',
       }
@@ -26,16 +25,17 @@ export async function onRequestPost(context: EventContext<Env, any, any>): Promi
       data: {
         book: book,
         chapter: parseInt(chapter),
-        speaker: formData.get('speaker') as string,
-        gravatarHash: formData.get('gravatarHash') as string,
+        speaker: context.request.headers.get('speaker') as string,
+        gravatarHash: context.request.headers.get('gravatarhash') as string,
         audioFilename: fileNameForAudio,
         submitterIp: context.request.headers.get('cf-connecting-ip'),
-        audioTimestamps: JSON.parse(formData.get('audioTimestamps') as string),
+        audioTimestamps: JSON.parse(context.request.headers.get('audiotimestamps') as string),
       }
     }).then(() => {
       return new Response(JSON.stringify({ success: true }));
     });
   } catch (exception) {
+    console.error(exception.stack);
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
   }
 }

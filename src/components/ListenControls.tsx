@@ -154,7 +154,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
             return <option key={recording.id} value={recording.id}>{recording.speaker}</option>
           })}
         </select>
-        { selectedRecording && <img className="user-image" style={({ display: gravatarHidden ? 'none': 'block'})} onError={() => setGravatarHidden(true)} src={`https://s.gravatar.com/avatar/${selectedRecording.gravatarHash}?s=38&d=404`} /> }
+        { selectedRecording && !gravatarHidden && <img className="user-image" onError={() => setGravatarHidden(true)} src={`https://s.gravatar.com/avatar/${selectedRecording.gravatarHash}?s=38&d=404`} /> }
         <div className='listenActions'>
           { selectedRecording ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
           <button className={`followButton btn text-nowrap ${ isFollowing ? 'btn-success' : 'btn-secondary'}`} onClick={ changeIsFollowing }>{ isFollowing ? <Check /> : <Cross /> } Auto Scroll</button>
