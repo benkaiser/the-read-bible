@@ -1,8 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { books, bookFiles } from "../data/books.js";
+import { books, bookFiles, chapters } from "../data/books.js";
+import { Left, Right } from './components/icons.js';
 import ListenControls from './components/ListenControls.js';
 import RecordingControls from './components/RecordingControls.js';
+
 
 const searchParams = new URLSearchParams(window.location.search);
 const bookSelected = searchParams.get('book');
@@ -101,7 +103,7 @@ function htmlToElement(html: string): HTMLElement {
   return template.content.firstChild as HTMLElement;
 }
 
-const App = (props) => {
+const App = () => {
   const [content, setContent] = React.useState<string>('');
   const [verseCount, setVerseCount] = React.useState(1);
   const [verseIndex, setFocusedVerse] = React.useState<number | null>(null);
@@ -209,6 +211,35 @@ const App = (props) => {
   </div>;
 }
 
+const Nav = () => {
+  const lastChapter = bookSelected === 'revelation' && chapterSelected === 22;
+  const firstChapter = bookSelected === 'genesis' && chapterSelected === 1;
+  let nextChapter, previousChapter;
+  let nextBook = bookSelected;
+  let previousBook = bookSelected;
+  if (chapters[bookSelected] > chapterSelected + 1) {
+    nextChapter = chapterSelected + 1;
+  } else {
+    nextChapter = 1;
+    nextBook = bookFiles[bookFiles.indexOf(bookSelected) + 1];
+  }
+  if (chapterSelected - 1 > 0) {
+    previousChapter = chapterSelected - 1;
+  } else {
+    previousBook = bookFiles[bookFiles.indexOf(bookSelected) - 1];
+    previousChapter = chapters[previousBook];
+  }
+  return <>
+      <a className="nav-link" href="./">Home</a>
+      { !firstChapter && <a className="nav-link" href={`?book=${previousBook}&chapter=${previousChapter}`}>Previous</a> }
+      { !lastChapter && <a className="nav-link" href={`?book=${nextBook}&chapter=${nextChapter}`}>Next</a> }
+  </>;
+}
+
 const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(<App />);
+
+const nav = document.getElementById('nav');
+const navRoot = createRoot(nav!);
+navRoot.render(<Nav />);
