@@ -64,7 +64,7 @@ function sendEmail(record: Recordings): Promise<void> {
     <p>New recording created for ${record.book} ${record.chapter}</p>
     <p>Recording recorded by ${record.speaker}</p>
     <p>Here is a link to the recording file: <a href="${audioUrl}">${audioUrl}</a></p>
-    <p>To approve, click this link: <a href="https://thereadbible.com/approve/${record.id}?key=${record.approvalKey}">Approve</a></p>
+    <p>To approve, click this link: <a href="https://thereadbible.com/api/approve/${record.id}?key=${record.approvalKey}">Approve</a></p>
   </body>
   </html>
   `;

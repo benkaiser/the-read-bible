@@ -17,8 +17,8 @@ export async function onRequestGet(context): Promise<Response> {
         }
       }
     });
-    return prisma.recordings.findMany().then((recordings) => {
-      return new Response(JSON.stringify(recordings.map(recording => exclude(recording, ['submitterIp']))));
+    return prisma.recordings.findMany({ where: { approved: true } }).then((recordings) => {
+      return new Response(JSON.stringify(recordings.map(recording => exclude(recording, ['submitterIp', 'approved', 'approvalKey']))));
     });
   } catch (exception) {
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
