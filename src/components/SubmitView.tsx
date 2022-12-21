@@ -35,7 +35,7 @@ export default function SubmitView(props: ISubmitViewProps): JSX.Element | null 
     }).then((result: boolean) => {
       setLoading(false);
       setSuccess(result);
-      setStatus(result ? 'Recording submitted, return to listen mode to find your recording' : 'Unable to save your recording, pleas try again later');
+      setStatus(result ? 'Recording submitted, it will be available shortly after moderator approval' : 'Unable to save your recording, pleas try again later');
     });
   }, [props.onSubmit, reader, gravatarHash]);
 
