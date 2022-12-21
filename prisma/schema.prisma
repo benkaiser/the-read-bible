@@ -21,6 +21,8 @@ model Recordings {
   audioTimestamps Json?
   submitterIp String?
   createdAt DateTime @default(now())
+  approved Boolean @default(false)
+  approvalKey String?
 
   @@map("recordings")
 }
