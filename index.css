@@ -40,6 +40,12 @@
   border-bottom-color: var(--bs-dark);
 }
 
+.random-button svg {
+  vertical-align: top;
+  margin-top: 4px;
+  margin-left: -1px;
+}
+
 /** ReadChapter **/
 
 @media screen and (max-width: 800px) {
