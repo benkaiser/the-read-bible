@@ -21,6 +21,15 @@ const App = () => {
     setChapter(refChapter.current.value);
   }
   const pickRandom = function() {
+    if (available) {
+      const availableBooks = Object.keys(available);
+      const bookIndex = Math.floor(Math.random() * availableBooks.length);
+      const randomBook = availableBooks[bookIndex];
+      setBook(randomBook);
+      const randomChapterIndex = Math.floor(available[randomBook].length * Math.random());
+      setChapter(available[randomBook][randomChapterIndex]);
+      return;
+    }
     const bookIndex = Math.floor(Math.random() * books.length);
     const randomBook = bookFiles[bookIndex];
     setBook(randomBook);
