@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { books, bookFiles, chapters } from "../data/books.js";
 import ListenControls from './components/ListenControls.js';
 import RecordingControls from './components/RecordingControls.js';
+import type bootstrap from 'bootstrap';
 
 const searchParams = new URLSearchParams(window.location.search);
 const bookSelected = searchParams.get('book');
@@ -101,6 +102,73 @@ function htmlToElement(html: string): HTMLElement {
   return template.content.firstChild as HTMLElement;
 }
 
+declare global {
+  interface Window {
+    nextTip: () => void;
+    endTour: () => void;
+  }
+}
+
+window.nextTip = function() {
+  Tour.nextTip();
+}
+
+window.endTour = function() {
+  Tour.endTour();
+}
+
+class Tour {
+  private static scripturePopover: bootstrap.Popover;
+  private static optionsPopover: bootstrap.Popover;
+  private static bootstrap: typeof bootstrap;
+  private static tourCompleted: boolean = localStorage.getItem('tourCompleted') === 'true';
+
+  static start() {
+    if (this.tourCompleted) {
+      return;
+    }
+    import('bootstrap').then(bootstrap => {
+      this.bootstrap = bootstrap;
+      const scriptureElement = document.getElementById('tour-stop-scripture')!;
+      this.scripturePopover = new bootstrap.Popover(scriptureElement, {
+        sanitize: false,
+        html: true,
+        title: 'Moving around',
+        trigger: 'manual',
+        content: '<p>Click each verse to highlight them as you go so listeners can follow along. You can also use arrow keys on a desktop.</p><button  onClick="nextTip()" class="btn btn-sm btn-primary">Next Tip</button> <button class="btn btn-sm btn-outline-dark" onClick="endTour()">Skip Tour</button>'
+      });
+      this.scripturePopover.show();
+    });
+  }
+
+  static nextTip() {
+    this.scripturePopover.hide();
+    const optionsElement = document.getElementById('tour-stop-options')!;
+    if (!optionsElement) {
+      this.endTour();
+    }
+    this.optionsPopover = new this.bootstrap.Popover(optionsElement, {
+      sanitize: false,
+      html: true,
+      title: 'Options',
+      trigger: 'manual',
+      content: '<p>Click here to start your recording when you are ready.</p><button class="btn btn-sm btn-primary" onClick="endTour()">Finish Tour</button>'
+    });
+    this.optionsPopover.show();
+  }
+
+  static hide() {
+    this.scripturePopover && this.scripturePopover.hide();
+    this.optionsPopover && this.optionsPopover.hide();
+  }
+
+  static endTour() {
+    this.hide();
+    this.tourCompleted = true;
+    localStorage.setItem('tourCompleted', 'true');
+  }
+}
+
 const App = () => {
   const [content, setContent] = React.useState<string>('');
   const [verseCount, setVerseCount] = React.useState(1);
@@ -168,6 +236,11 @@ const App = () => {
   }, [handleUserKeyPress]);
 
   const onSwitchMode = () => {
+    if (inListenMode) {
+      Tour.start();
+    } else {
+      Tour.hide();
+    }
     setInListenMode(!inListenMode);
   }
 

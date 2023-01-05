@@ -180,7 +180,7 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
       <div className="recordingControlsTop">
         <div className="leftControls">
           { !currentlyRecording && recordingCreated ? <button className="playButton btn btn-primary" onClick={isPlaying ? pauseRecording : playRecording}>{ isPlaying ? <Pause /> : <Play /> }</button> : ''}
-          { !currentlyRecording ? <button className={`recordButton btn btn-${recordingCreated ? 'secondary' : 'primary'}`} onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
+          { !currentlyRecording ? <button id='tour-stop-options' className={`recordButton btn btn-${recordingCreated ? 'secondary' : 'primary'}`} onClick={startRecording}>{ recordingCreated ? `New Recording` : `Record` }</button> : ''}
           { currentlyRecording ? <button className="stopButton btn btn-primary" onClick={stopRecording}>Finish</button> : ''}
           <span className='stats'>
             { currentlyRecording ? <RecordingStatus /> : recordingCreated ? (audioRef.current && <PlaybackTime audio={audioRef.current} />) : '' }
