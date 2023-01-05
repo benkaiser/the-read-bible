@@ -10,7 +10,7 @@ export interface IVerseTiming {
   time: number;
 }
 
-const worker = new Worker('./dist/worker.js');
+let worker;
 let recorder: Mp3MediaRecorder;
 let mp3Blob: Blob;
 let mp3BlobUrl: string;
@@ -74,6 +74,9 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
       .then(
         (stream) => {
           const mediaStream = stream;
+          if (!worker) {
+            worker = new Worker('./dist/worker.js');
+          }
           recorder = new Mp3MediaRecorder(stream, { worker });
           let blobs: Blob[] = [];
           props.changeVerse(1);

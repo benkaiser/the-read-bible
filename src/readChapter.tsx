@@ -1,10 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { books, bookFiles, chapters } from "../data/books.js";
-import { Left, Right } from './components/icons.js';
 import ListenControls from './components/ListenControls.js';
 import RecordingControls from './components/RecordingControls.js';
-
 
 const searchParams = new URLSearchParams(window.location.search);
 const bookSelected = searchParams.get('book');
@@ -107,7 +105,6 @@ const App = () => {
   const [content, setContent] = React.useState<string>('');
   const [verseCount, setVerseCount] = React.useState(1);
   const [verseIndex, setFocusedVerse] = React.useState<number | null>(null);
-  const [isMobile, setIsMobile] = React.useState(false);
   const [inListenMode, setInListenMode] = React.useState(true);
   type RecordingControlsHandle = React.ElementRef<typeof RecordingControls>;
   const recordingControlsRef = React.useRef<RecordingControlsHandle>(null);
@@ -175,7 +172,7 @@ const App = () => {
   }
 
   const onTouch = React.useCallback((event) => {
-    if (isMobile && event.target && verseIndex !== null) {
+    if (event.target && verseIndex !== null) {
       try {
         const verseContents = event.target.closest('.verseContents');
         const verseNumber = event.target.closest('.verse');
@@ -187,7 +184,7 @@ const App = () => {
         /* no-op */
       }
     }
-  }, [isMobile, verseIndex]);
+  }, [verseIndex]);
 
   const focusAll = React.useCallback(() => {
     setFocusedVerse(null);
@@ -199,7 +196,7 @@ const App = () => {
         <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} verseCount={verseCount} changeVerse={setFocusedVerse} focusAll={focusAll} /> :
         <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} focusAll={focusAll} ref={recordingControlsRef} />}
     </div>
-    { content ? <div className='scripture my-2' onTouchStart={() => setIsMobile(true)} onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
+    { content ? <div id="tour-stop-scripture" className='scripture my-2' onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
     <style dangerouslySetInnerHTML={ { __html: verseIndex === null ? `:root { --verse-color: black; --words-of-jesus-color: #d82e2e }` : `
       #V${verseIndex}, #V${verseIndex}C {
         color: black;
