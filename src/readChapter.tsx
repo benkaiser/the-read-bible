@@ -129,10 +129,12 @@ class Tour {
     }
     import('bootstrap').then(bootstrap => {
       this.bootstrap = bootstrap;
-      const scriptureElement = document.getElementById('tour-stop-scripture')!;
+      const scriptureElement = document.getElementById('V1C')!;
       this.scripturePopover = new bootstrap.Popover(scriptureElement, {
         sanitize: false,
         html: true,
+        placement: 'bottom',
+        fallbackPlacements: ['top'],
         title: 'Moving around',
         trigger: 'manual',
         content: '<p>Click each verse to highlight them as you go so listeners can follow along. You can also use arrow keys on a desktop.</p><button  onClick="nextTip()" class="btn btn-sm btn-primary">Next Tip</button> <button class="btn btn-sm btn-outline-dark" onClick="endTour()">Skip Tour</button>'
@@ -269,7 +271,7 @@ const App = () => {
         <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} verseCount={verseCount} changeVerse={setFocusedVerse} focusAll={focusAll} /> :
         <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} focusAll={focusAll} ref={recordingControlsRef} />}
     </div>
-    { content ? <div id="tour-stop-scripture" className='scripture my-2' onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
+    { content ? <div className='scripture my-2' onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
     <style dangerouslySetInnerHTML={ { __html: verseIndex === null ? `:root { --verse-color: black; --words-of-jesus-color: #d82e2e }` : `
       #V${verseIndex}, #V${verseIndex}C {
         color: black;
