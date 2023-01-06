@@ -1,10 +1,12 @@
-import React, { ChangeEvent, SyntheticEvent } from 'react';
-import { IVerseTiming } from './RecordingControls';
+import React, { ChangeEvent } from 'react';
+import { IVerseTiming } from '../interfaces.js';
+import { expectedVerse, getVerseTimingIndex } from '../utils.js';
 import { Check, Cross, Pause, Play } from './icons.js';
 
 interface IListenControlProps {
   onSwitch: () => void;
   changeVerse: (verse: number) => void;
+  setFocusFollowsVerse: (focusFollowsVerse: boolean) => void;
   focusAll: () => void;
   book: string;
   chapter: number;
@@ -33,7 +35,11 @@ let verseTimingPlaybackIndex: number = 0;
 let verseTimeout: number;
 let totalScrollHeight: number = document.body.scrollHeight;
 
-export default function ListenControls(props: IListenControlProps): JSX.Element {
+interface IListenControlHandles {
+  changeVerse: (verseNumber: number) => void;
+}
+
+const ListenControls: React.ForwardRefRenderFunction<IListenControlHandles, IListenControlProps> = (props: IListenControlProps, ref): JSX.Element => {
   const [ loaded, setLoaded ] = React.useState(false);
   const [ recordings, setRecordings ] = React.useState<IRecording[]>([]);
   const [ selectedRecording, setSelectedRecording ] = React.useState<IRecording | null>(null);
@@ -45,9 +51,21 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
   const [ isFollowing, setIsFollowing ] = React.useState(true);
   const isFollowingRef = React.useRef<boolean>(isFollowing);
 
+  React.useImperativeHandle(ref, () => ({
+    changeVerse: (verseNumber: number) => {
+      if (isPlaying && isVerseTimingsPresent && selectedRecording && selectedRecording.audioTimestamps && audioRef.current && expectedVerse(selectedRecording.audioTimestamps, audioRef.current) !== verseNumber) {
+        const index = getVerseTimingIndex(verseNumber, selectedRecording.audioTimestamps);
+        audioRef.current.currentTime = selectedRecording.audioTimestamps[index].time / 1000;
+        verseTimingPlaybackIndex = index;
+        verseTimeout && clearTimeout(verseTimeout);
+        requestAnimationFrame(() => queueNextVerse());
+        return;
+      }
+    }
+  }));
   React.useEffect(() => {
     fetch(`/api/recordingsForChapter?book=${props.book}&chapter=${props.chapter}`)
-    .then(response => response.json<IRecording[]>())
+    .then(response => response.json())
     .then((recordings: IRecording[]) => {
       recordings = recordings.sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
       setLoaded(true);
@@ -61,27 +79,24 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
     }
     const shouldFocusVerse = !!selectedRecording?.audioTimestamps && isPlaying;
     setIsVerseTimingsPresent(shouldFocusVerse);
-    if (shouldFocusVerse && isFollowing) {
+    if (shouldFocusVerse) {
       props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
     } else {
       props.focusAll();
     }
-  }, [ selectedRecording, isPlaying, isFollowing ]);
+  }, [ selectedRecording, isPlaying ]);
   const playRecording = React.useCallback(() => {
     if (playingSrc === '') {
       setPlayingSrc(r2URLFromFilename(selectedRecording!.audioFilename));
     } else {
       audioRef.current!.play();
-      if (selectedRecording && selectedRecording.audioTimestamps && isFollowing) {
+      if (selectedRecording && selectedRecording.audioTimestamps) {
         props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
       }
     }
     setIsPlaying(true);
-  }, [selectedRecording, playingSrc, isFollowing]);
+  }, [selectedRecording, playingSrc]);
   const scrollV1Recording = React.useCallback(() => {
-    if (!isFollowingRef.current) {
-      return;
-    }
     if (!audioRef.current || audioRef.current?.paused) {
       return;
     }
@@ -91,9 +106,6 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
     setTimeout(scrollV1Recording, timeBetweenVersesApproximate);
   }, [props.verseCount]);
   const queueNextVerse = React.useCallback(() => {
-    if (!isFollowingRef.current) {
-      return;
-    }
     if (!selectedRecording) {
       return;
     }
@@ -106,10 +118,10 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
       return;
     }
     const currentPlaybackTime = audioRef.current.currentTime * 1000;
+    if (verseTimeout) {
+      clearTimeout(verseTimeout);
+    }
     verseTimeout = setTimeout(() => {
-      if (audioRef.current?.paused || !isFollowingRef.current) {
-        return;
-      }
       props.changeVerse(selectedRecording.audioTimestamps[verseTimingPlaybackIndex].verse);
       verseTimingPlaybackIndex++;
       queueNextVerse();
@@ -138,12 +150,7 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
   const changeIsFollowing = React.useCallback(() => {
     isFollowingRef.current = !isFollowing;
     setIsFollowing(isFollowingState => !isFollowingState);
-    if (isVerseTimingsPresent && isFollowing) {
-      props.focusAll();
-    }
-    if (isVerseTimingsPresent && !isFollowing && selectedRecording) {
-      props.changeVerse(selectedRecording.audioTimestamps[Math.max(verseTimingPlaybackIndex - 1, 0)].verse);
-    }
+    props.setFocusFollowsVerse(!isFollowing);
     requestAnimationFrame(() => queueNextVerse());
   }, [isFollowing]);
   return <div className='listenControls'>
@@ -165,3 +172,5 @@ export default function ListenControls(props: IListenControlProps): JSX.Element 
       <audio onPause={onPause} onPlay={queueNextVerse} onEnded={onEnded} src={playingSrc} autoPlay={true} ref={audioRef}></audio>
     </div>;
 }
+
+export default React.forwardRef(ListenControls);

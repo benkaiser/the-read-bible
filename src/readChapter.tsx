@@ -174,10 +174,13 @@ class Tour {
 const App = () => {
   const [content, setContent] = React.useState<string>('');
   const [verseCount, setVerseCount] = React.useState(1);
-  const [verseIndex, setFocusedVerse] = React.useState<number | null>(null);
+  const [verseIndex, setVerseIndex] = React.useState<number | null>(null);
   const [inListenMode, setInListenMode] = React.useState(true);
+  const [focusFollowsVerse, setFocusFollowsVerse] = React.useState(true);
   type RecordingControlsHandle = React.ElementRef<typeof RecordingControls>;
   const recordingControlsRef = React.useRef<RecordingControlsHandle>(null);
+  type ListenControlsHandle = React.ElementRef<typeof ListenControls>;
+  const listenControlsRef = React.useRef<ListenControlsHandle>(null);
 
   React.useEffect(() => {
     fetch(`./data/chapters/${bookSelected}${chapterSelected}.html`)
@@ -193,11 +196,12 @@ const App = () => {
   }, []);
   React.useEffect(() => {
     recordingControlsRef.current?.changeVerse(verseIndex ?? 1);
+    listenControlsRef.current?.changeVerse(verseIndex ?? 1);
   }, [verseIndex]);
   const handleUserKeyPress = React.useCallback(event => {
     const { key, keyCode, code } = event;
     if(key === 'ArrowDown' || key === 'ArrowRight'){
-      setFocusedVerse(currentFocussedVerse => {
+      setVerseIndex(currentFocussedVerse => {
         if (currentFocussedVerse === null) {
           return null;
         }
@@ -208,7 +212,7 @@ const App = () => {
         }
       });
     } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-      setFocusedVerse(currentFocussedVerse => {
+      setVerseIndex(currentFocussedVerse => {
         if (currentFocussedVerse === null) {
           return null;
         }
@@ -222,7 +226,7 @@ const App = () => {
   }, [verseCount]);
 
   React.useEffect(() => {
-    if (verseIndex !== null) {
+    if (verseIndex !== null && focusFollowsVerse) {
       const verseContents = document.getElementById('V' + verseIndex + 'C');
       if (verseContents) {
         verseContents.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
@@ -253,7 +257,7 @@ const App = () => {
         const verseNumber = event.target.closest('.verse');
         if (verseContents || verseNumber) {
           const id = parseInt((verseContents || verseNumber).id.match(/\d+/)[0])
-          setFocusedVerse(id);
+          setVerseIndex(id);
         }
       } catch {
         /* no-op */
@@ -262,14 +266,14 @@ const App = () => {
   }, [verseIndex]);
 
   const focusAll = React.useCallback(() => {
-    setFocusedVerse(null);
+    setVerseIndex(null);
   }, []);
 
   return <div className='readChapterContainer mx-auto'>
     <div className='controlsHeader clearfix position-sticky border rounded p-2 bg-white'>
       { inListenMode ?
-        <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} verseCount={verseCount} changeVerse={setFocusedVerse} focusAll={focusAll} /> :
-        <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} changeVerse={setFocusedVerse} focusAll={focusAll} ref={recordingControlsRef} />}
+        <ListenControls book={bookSelected!} chapter={chapterSelected} onSwitch={onSwitchMode} verseCount={verseCount} setFocusFollowsVerse={setFocusFollowsVerse} changeVerse={setVerseIndex} focusAll={focusAll} ref={listenControlsRef} /> :
+        <RecordingControls book={bookSelected} chapter={chapterSelected} onSwitch={onSwitchMode} setFocusFollowsVerse={setFocusFollowsVerse} changeVerse={setVerseIndex} focusAll={focusAll} ref={recordingControlsRef} />}
     </div>
     { content ? <div className='scripture my-2' onClick={onTouch} dangerouslySetInnerHTML={ { __html: content }}></div> : 'Loading' }
     <style dangerouslySetInnerHTML={ { __html: verseIndex === null ? `:root { --verse-color: black; --words-of-jesus-color: #d82e2e }` : `

@@ -4,11 +4,8 @@ import { Pause, Play, Recording } from './icons.js';
 import PlaybackTime from './PlaybackTime.js';
 import TimeCounter from './TimeCounter.js';
 import SubmitView, { ISubmitDetails } from './SubmitView.js';
-
-export interface IVerseTiming {
-  verse: number;
-  time: number;
-}
+import { IVerseTiming } from '../interfaces.js';
+import { expectedVerse, getVerseTimingIndex } from '../utils.js';
 
 let worker;
 let recorder: Mp3MediaRecorder;
@@ -17,6 +14,7 @@ let mp3BlobUrl: string;
 let recordStartMark: number;
 let verseTimings: IVerseTiming[] = [];
 let verseTimingPlaybackIndex: number = 0;
+let verseTimeout: number;
 
 function markVerseSwitch(verseNumber: number, timeOverride?: number): void {
   verseTimings.push({ verse: verseNumber, time: timeOverride ?? Math.round(performance.now() - recordStartMark)});
@@ -58,6 +56,14 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
     changeVerse: (verseNumber: number) => {
       if (currentlyRecording) {
         markVerseSwitch(verseNumber);
+      }
+      if (isPlaying && audioRef.current && expectedVerse(verseTimings, audioRef.current) !== verseNumber) {
+        const index = getVerseTimingIndex(verseNumber, verseTimings);
+        audioRef.current.currentTime = verseTimings[index].time / 1000;
+        verseTimingPlaybackIndex = index;
+        verseTimeout && clearTimeout(verseTimeout);
+        requestAnimationFrame(() => queueNextVerse());
+        return;
       }
     }
   }));
@@ -131,7 +137,10 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
       return;
     }
     const currentPlaybackTime = audioRef.current.currentTime * 1000;
-    setTimeout(() => {
+    if (verseTimeout) {
+      clearTimeout(verseTimeout);
+    }
+    verseTimeout = setTimeout(() => {
       if (audioRef.current?.paused) {
         return;
       }
@@ -149,6 +158,7 @@ const RecordingControls: React.ForwardRefRenderFunction<IRecordingControlHandles
   const pauseRecording = () => {
     setIsPlaying(false);
     audioRef.current?.pause();
+    clearTimeout(verseTimeout);
   }
   const onPause = () => {
     setIsPlaying(false);

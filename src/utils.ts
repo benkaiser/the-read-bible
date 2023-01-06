@@ -1,3 +1,5 @@
+import { IVerseTiming } from './interfaces';
+
 export function md5(inputString) {
   var hc="0123456789abcdef";
   function rh(n) {var j,s="";for(j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
@@ -39,4 +41,26 @@ export function md5(inputString) {
       b=ii(b,c,d,a,x[i+ 9],21, -343485551);a=ad(a,olda);b=ad(b,oldb);c=ad(c,oldc);d=ad(d,oldd);
   }
   return rh(a)+rh(b)+rh(c)+rh(d);
+}
+
+export function expectedVerse(verseTimings: IVerseTiming[], audio: HTMLAudioElement): number {
+  const currentTime = audio.currentTime;
+    // note: this makes the assumption the verses are in sequential order, since it seeks to the first verse that is greater than the current time
+    // and then selects the one befor it
+  const verseTimingIndex = verseTimings.findIndex(vt => vt.time > currentTime * 1000);
+  if (verseTimingIndex === -1) {
+    return verseTimings[verseTimings.length - 1].verse;
+  } else if (verseTimingIndex === 0) {
+    return verseTimings[0].verse;
+  } else {
+    return verseTimings[verseTimingIndex - 1].verse;
+  }
+}
+
+export function getVerseTimingIndex(verseNumber: number, verseTimings: IVerseTiming[]): number {
+  const index = verseTimings.findIndex(vt => vt.verse === verseNumber);
+  if (index !== -1) {
+    return index;
+  }
+  return 0;
 }
