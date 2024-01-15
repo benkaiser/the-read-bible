@@ -1,5 +1,7 @@
 import { Recordings } from '@prisma/client';
 import { PrismaClient } from '@prisma/client/edge';
+import { withAccelerate } from '@prisma/extension-accelerate'
+
 interface Env {
   MY_BUCKET: R2Bucket
   DATABASE_URL: string
@@ -13,12 +15,8 @@ function randomString(len) {
 export async function onRequestPost(context: EventContext<Env, any, any>): Promise<Response> {
   try {
     const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: context.env.DATABASE_URL
-        }
-      }
-    });
+      datasourceUrl: context.env.DATABASE_URL
+    }).$extends(withAccelerate());
     const book = context.request.headers.get('book') as string;
     const chapter = context.request.headers.get('chapter') as string;
     const fileNameForAudio = `${+new Date()}_${book}_${chapter}.mp3`;

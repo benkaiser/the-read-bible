@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client/edge';
+import { withAccelerate } from '@prisma/extension-accelerate'
+
 interface Env {
   DATABASE_URL: string
 }
@@ -17,12 +19,8 @@ export async function onRequestGet(context: EventContext<Env, any, any>): Promis
     let chapter = parseInt(searchParams.get('chapter'));
     const env = context.env;
     const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: env.DATABASE_URL
-        }
-      }
-    });
+      datasourceUrl: env.DATABASE_URL
+    }).$extends(withAccelerate());
     return prisma.recordings.findMany({ where: { book: book, chapter: chapter, approved: true }}).then((recordings) => {
       return new Response(JSON.stringify(recordings.map(recording => exclude(recording, ['submitterIp', 'approved', 'approvalKey']))));
     });

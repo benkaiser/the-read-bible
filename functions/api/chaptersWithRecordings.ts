@@ -1,16 +1,17 @@
-import { Prisma, PrismaClient } from '@prisma/client/edge';
+import { Prisma, PrismaClient } from '@prisma/client/edge'
+import { withAccelerate } from '@prisma/extension-accelerate'
 
 export async function onRequestGet(context): Promise<Response> {
   try {
     const env = context.env;
+    console.log(context.env);
     const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: env.DATABASE_URL
-        }
-      }
-    });
-    return prisma.recordings.aggregateRaw({ pipeline: [{$group: {_id: "$book", chapters: { $addToSet: "$chapter" }}}]})
+      datasourceUrl: env.DATABASE_URL
+    }).$extends(withAccelerate());
+    return prisma.recordings.aggregateRaw({ pipeline: [
+      { $match: { approved: true } },
+      {$group: {_id: "$book", chapters: { $addToSet: "$chapter" }}}
+    ]})
     .then((responses) => {
       const bookLookup = {};
       (responses as unknown as Array<Prisma.JsonObject>).forEach(response => {
