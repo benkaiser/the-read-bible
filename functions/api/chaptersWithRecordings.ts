@@ -17,6 +17,10 @@ export async function onRequestGet(context): Promise<Response> {
         bookLookup[response._id as string] = (response.chapters as number[]).sort((a, b) => a - b);
       });
       return new Response(JSON.stringify(bookLookup));
+    }).catch(exception => {
+      console.error(exception);
+      console.error(exception.stack);
+      throw exception;
     });
   } catch (exception) {
     console.error(new Error().stack);

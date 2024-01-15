@@ -23,6 +23,10 @@ export async function onRequestGet(context: EventContext<Env, any, any>): Promis
     }).$extends(withAccelerate());
     return prisma.recordings.findMany({ where: { book: book, chapter: chapter, approved: true }}).then((recordings) => {
       return new Response(JSON.stringify(recordings.map(recording => exclude(recording, ['submitterIp', 'approved', 'approvalKey']))));
+    }).catch(exception => {
+      console.error(exception);
+      console.error(exception.stack);
+      throw exception;
     });
   } catch (exception) {
     console.error(new Error().stack);
