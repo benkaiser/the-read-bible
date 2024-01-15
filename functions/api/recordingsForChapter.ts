@@ -25,6 +25,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>): Promis
       return new Response(JSON.stringify(recordings.map(recording => exclude(recording, ['submitterIp', 'approved', 'approvalKey']))));
     });
   } catch (exception) {
+    console.trace();
     console.error(exception);
     console.error(exception.stack);
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
