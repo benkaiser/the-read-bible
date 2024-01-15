@@ -4,7 +4,6 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 export async function onRequestGet(context): Promise<Response> {
   try {
     const env = context.env;
-    console.log(context.env);
     const prisma = new PrismaClient({
       datasourceUrl: env.DATABASE_URL
     }).$extends(withAccelerate());
