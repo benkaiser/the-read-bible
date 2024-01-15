@@ -19,7 +19,7 @@ export async function onRequestGet(context): Promise<Response> {
       return new Response(JSON.stringify(bookLookup));
     });
   } catch (exception) {
-    console.trace();
+    console.error(new Error().stack);
     console.error(exception);
     console.error(exception.stack);
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
