@@ -15,7 +15,11 @@ const App = () => {
   };
   const onSelectBook = function() {
     setBook(refBook.current.value);
-    setChapter(1);
+    if (available && available[refBook.current.value]) {
+      setChapter(available[refBook.current.value][0]);
+    } else {
+      setChapter(1);
+    }
   }
   const onSelectChapter = function() {
     setChapter(refChapter.current.value);
