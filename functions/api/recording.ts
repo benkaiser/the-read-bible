@@ -80,7 +80,7 @@ function sendEmail(record: Recordings): Promise<void> {
         email: 'thereadbible_sender@kaiser.lol',
         name: 'The Read Bible - Approvals',
       },
-      subject: `New Chapter Recording Created for ${record.book} ${record.chapter}}`,
+      subject: `New Chapter Recording Created for ${record.book} ${record.chapter}`,
       content: [
         {
           type: 'text/html',
