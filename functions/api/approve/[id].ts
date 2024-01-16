@@ -1,5 +1,5 @@
-import { Recordings } from '@prisma/client';
-import { PrismaClient } from '@prisma/client/edge';
+import { Recordings, getDB } from "../../db";
+
 interface Env {
   MY_BUCKET: R2Bucket
   DATABASE_URL: string
@@ -7,19 +7,13 @@ interface Env {
 
 export async function onRequestGet(context: EventContext<Env, any, any>): Promise<Response> {
   try {
-    const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: context.env.DATABASE_URL
-        }
-      }
-    });
+    const collection = await getDB(context);
     const { searchParams } = new URL(context.request.url);
     let key = searchParams.get('key')
 
-    const recording: Recordings = await prisma.recordings.findFirst({ where: { id: (context.params.id as string), approvalKey: key } });
+    const recording: Recordings = await collection.findOne({ where: { _id: (context.params.id as string), approvalKey: key } });
     if (recording) {
-      await prisma.recordings.update({ where: { id: recording.id }, data: { approved: true } });
+      await collection.updateOne({ _id: recording._id }, { approved: true });
       return new Response(`<html><body><h1>Recording Approved</h1><p><a href="/readchapter?book=${recording.book}&chapter=${recording.chapter}">Go to chapter</a></p></body></html>`, {
         headers: {
           'content-type': 'text/html'

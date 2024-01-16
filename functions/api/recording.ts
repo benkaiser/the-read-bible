@@ -1,6 +1,6 @@
-import { Recordings } from '@prisma/client';
-import { PrismaClient } from '@prisma/client/edge';
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { InsertOneResult } from 'realm/dist/bundle';
+import { getDB, Recordings } from '../db';
+import { BSON } from 'realm-web';
 
 interface Env {
   MY_BUCKET: R2Bucket
@@ -14,9 +14,7 @@ function randomString(len) {
 
 export async function onRequestPost(context: EventContext<Env, any, any>): Promise<Response> {
   try {
-    const prisma = new PrismaClient({
-      datasourceUrl: context.env.DATABASE_URL
-    }).$extends(withAccelerate());
+    const collection = await getDB(context);
     const book = context.request.headers.get('book') as string;
     const chapter = context.request.headers.get('chapter') as string;
     const fileNameForAudio = `${+new Date()}_${book}_${chapter}.mp3`;
@@ -26,19 +24,19 @@ export async function onRequestPost(context: EventContext<Env, any, any>): Promi
       }
     });
     const approvalKey = randomString(32);
-    return prisma.recordings.create({
-      data: {
-        book: book,
-        chapter: parseInt(chapter),
-        speaker: context.request.headers.get('speaker') as string,
-        gravatarHash: context.request.headers.get('gravatarhash') as string,
-        audioFilename: fileNameForAudio,
-        submitterIp: context.request.headers.get('cf-connecting-ip'),
-        audioTimestamps: JSON.parse(context.request.headers.get('audiotimestamps') as string),
-        approved: false,
-        approvalKey
-      }
-    }).then((record: Recordings) => sendEmail(record))
+    const document: Omit<Recordings, '_id'> = {
+      book: book,
+      chapter: parseInt(chapter),
+      speaker: context.request.headers.get('speaker') as string,
+      gravatarHash: context.request.headers.get('gravatarhash') as string,
+      audioFilename: fileNameForAudio,
+      submitterIp: context.request.headers.get('cf-connecting-ip'),
+      audioTimestamps: JSON.parse(context.request.headers.get('audiotimestamps') as string),
+      createdAt: new Date(),
+      approved: false,
+      approvalKey
+    };
+    return collection.insertOne(document).then((record: InsertOneResult<BSON.ObjectId>) => sendEmail({...document, _id: record.insertedId.toString()}))
     .then(() => {
       return new Response(JSON.stringify({ success: true }));
     }).catch((exception) => {
@@ -62,7 +60,7 @@ function sendEmail(record: Recordings): Promise<void> {
     <p>New recording created for ${record.book} ${record.chapter}</p>
     <p>Recording recorded by ${record.speaker}</p>
     <p>Here is a link to the recording file: <a href="${audioUrl}">${audioUrl}</a></p>
-    <p>To approve, click this link: <a href="https://thereadbible.com/api/approve/${record.id}?key=${record.approvalKey}">Approve</a></p>
+    <p>To approve, click this link: <a href="https://thereadbible.com/api/approve/${record._id}?key=${record.approvalKey}">Approve</a></p>
   </body>
   </html>
   `;

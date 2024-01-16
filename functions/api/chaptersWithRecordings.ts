@@ -1,20 +1,16 @@
-import { Prisma, PrismaClient } from '@prisma/client/edge'
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { getDB } from '../db';
 
 export async function onRequestGet(context): Promise<Response> {
   try {
-    const env = context.env;
-    const prisma = new PrismaClient({
-      datasourceUrl: env.DATABASE_URL
-    }).$extends(withAccelerate());
-    return prisma.recordings.aggregateRaw({ pipeline: [
+    const collection = await getDB(context);
+    return collection.aggregate([
       { $match: { approved: true } },
       {$group: {_id: "$book", chapters: { $addToSet: "$chapter" }}}
-    ]})
+    ])
     .then((responses) => {
       const bookLookup = {};
-      (responses as unknown as Array<Prisma.JsonObject>).forEach(response => {
-        bookLookup[response._id as string] = (response.chapters as number[]).sort((a, b) => a - b);
+      (responses as unknown as Array<{ _id: string; chapters: number[] }>).forEach(response => {
+        bookLookup[response._id as string] = response.chapters.sort((a, b) => a - b);
       });
       return new Response(JSON.stringify(bookLookup));
     }).catch(exception => {
