@@ -1,4 +1,5 @@
 import { Recordings, getDB } from "../../db";
+import { BSON } from 'realm-web';
 
 interface Env {
   MY_BUCKET: R2Bucket
@@ -11,9 +12,9 @@ export async function onRequestGet(context: EventContext<Env, any, any>): Promis
     const { searchParams } = new URL(context.request.url);
     let key = searchParams.get('key')
 
-    const recording: Recordings = await collection.findOne({ where: { _id: (context.params.id as string), approvalKey: key } });
+    const recording: Recordings = await collection.findOne({ _id: new BSON.ObjectID(context.params.id as string), approvalKey: key });
     if (recording) {
-      await collection.updateOne({ _id: recording._id }, { approved: true });
+      await collection.updateOne({ _id: recording._id }, { ...recording, approved: true });
       return new Response(`<html><body><h1>Recording Approved</h1><p><a href="/readchapter?book=${recording.book}&chapter=${recording.chapter}">Go to chapter</a></p></body></html>`, {
         headers: {
           'content-type': 'text/html'
@@ -27,7 +28,7 @@ export async function onRequestGet(context: EventContext<Env, any, any>): Promis
       });
     }
   } catch (exception) {
-    console.error(exception.stack);
+    console.error(exception);
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
   }
 }

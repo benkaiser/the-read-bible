@@ -15,13 +15,10 @@ export async function onRequestGet(context): Promise<Response> {
       return new Response(JSON.stringify(bookLookup));
     }).catch(exception => {
       console.error(exception);
-      console.error(exception.stack);
       throw exception;
     });
   } catch (exception) {
-    console.error(new Error().stack);
     console.error(exception);
-    console.error(exception.stack);
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
   }
 }

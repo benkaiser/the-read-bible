@@ -40,11 +40,11 @@ export async function onRequestPost(context: EventContext<Env, any, any>): Promi
     .then(() => {
       return new Response(JSON.stringify({ success: true }));
     }).catch((exception) => {
-      console.error(exception.stack);
+      console.error(exception);
       return new Response(JSON.stringify({ success: true, exception, message: exception.message }), { status: 200 });
     })
   } catch (exception) {
-    console.error(exception.stack);
+    console.error(exception);
     return new Response(JSON.stringify(exception) + JSON.stringify(exception.message), { status: 500 });
   }
 }
